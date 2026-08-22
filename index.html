@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Life 4.0 - Cloud Sync Firebase</title>
+  <title>Life 4.0 - Realtime Cloud Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
@@ -13,13 +13,10 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans pb-24">
 
-  <!-- Status Bar Cloud -->
-  <div id="cloud-status-bar" class="bg-amber-500/10 border-b border-amber-500/20 text-amber-300 text-[11px] py-1.5 px-4 flex items-center justify-between">
-    <div class="flex items-center space-x-2">
-      <i class="fa-solid fa-cloud-slash"></i>
-      <span id="cloud-status-text">Modalità Offline (LocalStorage). Configura Firebase per sincronizzare i dispositivi.</span>
-    </div>
-    <button onclick="openConfigModal()" class="underline font-semibold hover:text-white">Imposta Cloud</button>
+  <!-- Status Bar Cloud Automatica -->
+  <div id="cloud-status-bar" class="bg-emerald-500/10 border-b border-emerald-500/20 text-emerald-300 text-[11px] py-1.5 px-4 flex items-center justify-center space-x-2">
+    <i class="fa-solid fa-cloud"></i>
+    <span id="cloud-status-text">Cloud Sincronizzato con Firebase (Realtime Attivo)</span>
   </div>
 
   <!-- Header -->
@@ -35,9 +32,6 @@
         </div>
       </div>
       <div class="flex items-center space-x-2">
-        <button onclick="openConfigModal()" title="Configura Firebase" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs">
-          <i class="fa-solid fa-gear"></i>
-        </button>
         <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md shadow-indigo-600/30 flex items-center space-x-1">
           <i class="fa-solid fa-plus"></i>
           <span>Nuovo Movimento</span>
@@ -117,28 +111,6 @@
 
   </main>
 
-  <!-- MODALE CONFIGURAZIONE FIREBASE -->
-  <div id="config-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-bold text-base text-slate-100"><i class="fa-solid fa-fire text-amber-500 mr-2"></i>Configura Firebase Cloud</h3>
-        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
-      <p class="text-xs text-slate-400">Incolla qui i parametri forniti dalla Console Firebase per abilitare la sincronizzazione in tempo reale su PC e Smartphone.</p>
-      <form onsubmit="saveFirebaseConfig(event)" class="space-y-2.5 text-xs">
-        <input type="text" id="cfg-apiKey" placeholder="apiKey" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
-        <input type="text" id="cfg-authDomain" placeholder="authDomain" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
-        <input type="text" id="cfg-projectId" placeholder="projectId" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
-        <input type="text" id="cfg-storageBucket" placeholder="storageBucket" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
-        <input type="text" id="cfg-appId" placeholder="appId" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
-        <div class="pt-2 flex space-x-2">
-          <button type="button" onclick="closeConfigModal()" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl font-medium">Annulla</button>
-          <button type="submit" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white py-2.5 rounded-xl font-medium shadow-lg shadow-amber-600/30">Connetti Cloud</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <!-- MODALE MOVIMENTO -->
   <div id="item-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
@@ -203,70 +175,43 @@
   </div>
 
   <script>
+    // Configurazione Firebase incorporata
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDff4Lkf6usNIgFlUcETsS4Fwnm200C7g",
+      authDomain: "life-40-189d6.firebaseapp.com",
+      projectId: "life-40-189d6",
+      storageBucket: "life-40-189d6.firebasestorage.app",
+      appId: "1:27122317516:web:e39f64ae0b81edeba2ea69"
+    };
+
     let db = null;
     let itemsList = [];
     const LOCAL_KEY = 'life40_hub_data';
-    const CFG_KEY = 'life40_firebase_cfg';
 
     function initFirebase() {
-      const savedCfg = localStorage.getItem(CFG_KEY);
-      if (savedCfg) {
-        try {
-          const config = JSON.parse(savedCfg);
-          if (!firebase.apps.length) {
-            firebase.initializeApp(config);
-          }
-          db = firebase.firestore();
-          
-          document.getElementById('cloud-status-bar').className = "bg-emerald-500/10 border-b border-emerald-500/20 text-emerald-300 text-[11px] py-1.5 px-4 flex items-center justify-between";
-          document.getElementById('cloud-status-text').innerText = "Cloud Sincronizzato con Firebase (Realtime Attivo)";
-          
-          db.collection('life40_items').onSnapshot(snapshot => {
-            itemsList = [];
-            snapshot.forEach(doc => {
-              itemsList.push({ id: doc.id, ...doc.data() });
-            });
-            localStorage.setItem(LOCAL_KEY, JSON.stringify(itemsList));
-            renderItems();
-            renderReport();
-            updateDashboardMetrics();
-          }, err => {
-            console.error("Errore Sync Firestore:", err);
-          });
-          return true;
-        } catch (e) {
-          console.error("Configurazione Firebase non valida:", e);
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
         }
+        db = firebase.firestore();
+        
+        db.collection('life40_items').onSnapshot(snapshot => {
+          itemsList = [];
+          snapshot.forEach(doc => {
+            itemsList.push({ id: doc.id, ...doc.data() });
+          });
+          localStorage.setItem(LOCAL_KEY, JSON.stringify(itemsList));
+          renderItems();
+          renderReport();
+          updateDashboardMetrics();
+        }, err => {
+          console.error("Errore Sync Firestore:", err);
+        });
+        return true;
+      } catch (e) {
+        console.error("Errore Firebase:", e);
+        return false;
       }
-      return false;
-    }
-
-    function saveFirebaseConfig(e) {
-      e.preventDefault();
-      const cfg = {
-        apiKey: document.getElementById('cfg-apiKey').value.trim(),
-        authDomain: document.getElementById('cfg-authDomain').value.trim(),
-        projectId: document.getElementById('cfg-projectId').value.trim(),
-        storageBucket: document.getElementById('cfg-storageBucket').value.trim(),
-        appId: document.getElementById('cfg-appId').value.trim()
-      };
-      localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
-      closeConfigModal();
-      location.reload();
-    }
-
-    function openConfigModal() {
-      const cfg = JSON.parse(localStorage.getItem(CFG_KEY) || '{}');
-      document.getElementById('cfg-apiKey').value = cfg.apiKey || '';
-      document.getElementById('cfg-authDomain').value = cfg.authDomain || '';
-      document.getElementById('cfg-projectId').value = cfg.projectId || '';
-      document.getElementById('cfg-storageBucket').value = cfg.storageBucket || '';
-      document.getElementById('cfg-appId').value = cfg.appId || '';
-      document.getElementById('config-modal').classList.remove('hidden');
-    }
-
-    function closeConfigModal() {
-      document.getElementById('config-modal').classList.add('hidden');
     }
 
     function loadInitialData() {
