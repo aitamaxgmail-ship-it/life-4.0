@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Life 4.0 - La tua vita senza burocrazia</title>
+  <title>Life 4.0 - Gestione Famiglia & Attività</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -11,105 +11,165 @@
 
   <!-- Header -->
   <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
-    <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">
-          <i class="fa-solid fa-bolt text-base"></i>
+          <i class="fa-solid fa-chart-line text-base"></i>
         </div>
         <div>
           <h1 class="font-bold text-lg tracking-tight leading-none">Life 4.0</h1>
-          <p class="text-[10px] text-indigo-400 font-medium">LIVING SYSTEM</p>
+          <p class="text-[10px] text-indigo-400 font-medium">BUSINESS & FAMILY HUB</p>
         </div>
       </div>
       <div class="flex items-center space-x-2">
-        <button onclick="exportData()" title="Backup Dati" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs">
+        <button onclick="clearAllData()" title="Svuota Dati" class="p-2 bg-slate-800 hover:bg-red-900/40 text-slate-400 hover:text-red-400 rounded-lg text-xs transition">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+        <button onclick="exportData()" title="Backup JSON" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs">
           <i class="fa-solid fa-download"></i>
         </button>
         <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md shadow-indigo-600/30 flex items-center space-x-1">
           <i class="fa-solid fa-plus"></i>
-          <span>Nuovo</span>
+          <span>Nuovo Movimento</span>
         </button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-md mx-auto px-4 pt-5 space-y-5">
+  <main class="max-w-xl mx-auto px-4 pt-5 space-y-5">
 
-    <!-- Dashboard Metrics -->
+    <!-- Dashboard Quick Totals -->
     <div class="grid grid-cols-3 gap-2.5">
       <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl">
-        <span class="text-[11px] text-slate-400 block mb-0.5">Spesa Mese</span>
-        <span id="metric-spesa" class="text-base font-bold text-indigo-400">€ 0.00</span>
+        <span class="text-[11px] text-slate-400 block mb-0.5">Entrate Mese</span>
+        <span id="dash-entrate" class="text-base font-bold text-emerald-400">€ 0.00</span>
       </div>
       <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl">
-        <span class="text-[11px] text-slate-400 block mb-0.5">In Scadenza</span>
-        <span id="metric-scadenze" class="text-base font-bold text-amber-400">0</span>
+        <span class="text-[11px] text-slate-400 block mb-0.5">Uscite Mese</span>
+        <span id="dash-uscite" class="text-base font-bold text-red-400">€ 0.00</span>
       </div>
       <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl">
-        <span class="text-[11px] text-slate-400 block mb-0.5">Garanzie</span>
-        <span id="metric-garanzie" class="text-base font-bold text-emerald-400">0</span>
+        <span class="text-[11px] text-slate-400 block mb-0.5">Saldo Mese</span>
+        <span id="dash-saldo" class="text-base font-bold text-indigo-400">€ 0.00</span>
       </div>
     </div>
 
-    <!-- Barra di Ricerca -->
-    <div class="relative">
-      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
-      <input type="text" id="search-input" oninput="renderItems()" placeholder="Cerca documento, abbonamento o garanzia..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
-    </div>
-
-    <!-- Navigation Tabs -->
+    <!-- Navigation Main Tabs -->
     <div class="flex border-b border-slate-800 text-xs font-medium text-slate-400">
-      <button onclick="switchTab('tutti')" id="tab-tutti" class="flex-1 pb-2.5 text-indigo-400 border-b-2 border-indigo-500 font-semibold transition">Tutti</button>
-      <button onclick="switchTab('scadenza')" id="tab-scadenza" class="flex-1 pb-2.5 transition">Scadenze</button>
-      <button onclick="switchTab('abbonamento')" id="tab-abbonamento" class="flex-1 pb-2.5 transition">Abbonamenti</button>
-      <button onclick="switchTab('garanzia')" id="tab-garanzia" class="flex-1 pb-2.5 transition">Garanzie</button>
+      <button onclick="switchTab('movimenti')" id="tab-movimenti" class="flex-1 pb-2.5 text-indigo-400 border-b-2 border-indigo-500 font-semibold transition">Entrate / Uscite</button>
+      <button onclick="switchTab('report')" id="tab-report" class="flex-1 pb-2.5 transition">Report Attività</button>
+      <button onclick="switchTab('scadenze')" id="tab-scadenze" class="flex-1 pb-2.5 transition">Documenti & Scadenze</button>
     </div>
 
-    <!-- Lista Elementi -->
-    <div id="items-container" class="space-y-3">
-      <!-- Gli elementi verranno inseriti dinamicamente dal Javascript -->
+    <!-- VISTA 1: LISTA MOVIMENTI (ENTRATE E USCITE) -->
+    <div id="view-movimenti" class="space-y-3">
+      <!-- Filtri Rapidi -->
+      <div class="flex items-center space-x-2">
+        <div class="relative flex-1">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+          <input type="text" id="search-input" oninput="renderItems()" placeholder="Cerca descrizione, note, attività..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+        </div>
+        <select id="filter-activity" onchange="renderItems()" class="bg-slate-900 border border-slate-800 rounded-xl px-2 py-1.5 text-xs text-slate-300 focus:outline-none">
+          <option value="tutti">Tutte le Attività</option>
+          <option value="Famiglia / Casa">Famiglia / Casa</option>
+          <option value="Attività 1">Attività 1</option>
+          <option value="Attività 2">Attività 2</option>
+          <option value="Attività 3">Attività 3</option>
+          <option value="Attività 4">Attività 4</option>
+          <option value="Attività 5">Attività 5</option>
+        </select>
+      </div>
+
+      <div id="items-container" class="space-y-2.5">
+        <!-- Generato via JS -->
+      </div>
+    </div>
+
+    <!-- VISTA 2: REPORT MENSILE PER ATTIVITÀ -->
+    <div id="view-report" class="space-y-4 hidden">
+      <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-3 rounded-xl">
+        <label class="text-xs text-slate-400 font-medium">Seleziona Mese Report:</label>
+        <input type="month" id="report-month" onchange="renderReport()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs px-3 py-1.5 rounded-lg">
+      </div>
+
+      <div id="report-cards-container" class="space-y-3">
+        <!-- Card per ciascuna attività generate da JS -->
+      </div>
+
+      <div class="bg-gradient-to-r from-indigo-900/40 to-slate-900 border border-indigo-500/30 p-4 rounded-2xl flex items-center justify-between">
+        <div>
+          <p class="text-xs text-indigo-300 font-semibold">RISULTATO COMPLESSIVO MESE</p>
+          <p class="text-[10px] text-slate-400">Somma di tutte le attività + Famiglia</p>
+        </div>
+        <div class="text-right">
+          <p id="report-total-net" class="text-lg font-bold text-emerald-400">€ 0.00</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA 3: SCADENZE & DOCUMENTI -->
+    <div id="view-scadenze" class="space-y-3 hidden">
+      <div id="scadenze-container" class="space-y-2.5">
+        <!-- Generato via JS -->
+      </div>
     </div>
 
   </main>
 
-  <!-- MODALE AGGIUNTA / MODIFICA -->
+  <!-- MODALE INSERIMENTO / MODIFICA -->
   <div id="item-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 id="modal-title" class="font-bold text-base text-slate-100">Nuova Voce</h3>
+        <h3 id="modal-title" class="font-bold text-base text-slate-100">Nuovo Movimento</h3>
         <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
       <form id="item-form" onsubmit="saveItem(event)" class="space-y-3.5 text-xs">
         <input type="hidden" id="item-id">
 
-        <div>
-          <label class="block text-slate-400 mb-1 font-medium">Tipologia</label>
-          <select id="item-type" onchange="toggleFormFields()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none">
-            <option value="scadenza">Scadenza Documento / Veicolo</option>
-            <option value="abbonamento">Abbonamento Ricorrente</option>
-            <option value="garanzia">Scontrino & Garanzia Prodotto</option>
-          </select>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1 font-medium">Tipologia</label>
+            <select id="item-type" onchange="adjustFormView()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none">
+              <option value="uscita">Spesa / Uscita (-)</option>
+              <option value="entrata">Incasso / Entrata (+)</option>
+              <option value="scadenza">Scadenza Documento</option>
+              <option value="abbonamento">Abbonamento Ricorrente</option>
+              <option value="garanzia">Garanzia Prodotto</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-slate-400 mb-1 font-medium">Attività / Conto</label>
+            <select id="item-activity" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none">
+              <option value="Famiglia / Casa">Famiglia / Casa</option>
+              <option value="Attività 1">Attività 1</option>
+              <option value="Attività 2">Attività 2</option>
+              <option value="Attività 3">Attività 3</option>
+              <option value="Attività 4">Attività 4</option>
+              <option value="Attività 5">Attività 5</option>
+            </select>
+          </div>
         </div>
 
         <div>
-          <label class="block text-slate-400 mb-1 font-medium">Titolo / Nome</label>
-          <input type="text" id="item-name" required placeholder="es. Carta Identità, Netflix, MacBook Pro" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none">
+          <label class="block text-slate-400 mb-1 font-medium">Descrizione / Nome</label>
+          <input type="text" id="item-name" required placeholder="es. Spesa alimentari, Incasso Fattura #12, Bollo Auto" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-slate-400 mb-1 font-medium" id="label-date">Data Scadenza</label>
+            <label class="block text-slate-400 mb-1 font-medium" id="label-date">Data</label>
             <input type="date" id="item-date" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none">
           </div>
           <div>
             <label class="block text-slate-400 mb-1 font-medium">Importo (€)</label>
-            <input type="number" step="0.01" id="item-amount" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none">
+            <input type="number" step="0.01" id="item-amount" required placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none">
           </div>
         </div>
 
         <div>
-          <label class="block text-slate-400 mb-1 font-medium">Foto Scontrino / Documento</label>
+          <label class="block text-slate-400 mb-1 font-medium">Foto Scontrino / Ricevuta / Fattura</label>
           <input type="file" id="item-file" accept="image/*" onchange="previewImage(event)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-400 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-indigo-600 file:text-white">
           <div id="image-preview-container" class="mt-2 hidden">
             <img id="image-preview" src="" alt="Anteprima" class="w-full h-32 object-cover rounded-xl border border-slate-800">
@@ -118,12 +178,12 @@
 
         <div>
           <label class="block text-slate-400 mb-1 font-medium">Note aggiuntive</label>
-          <textarea id="item-notes" rows="2" placeholder="Codice abbonamento, numero di serie, clausole..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none"></textarea>
+          <textarea id="item-notes" rows="2" placeholder="Dettagli cliente, fornitore, metodo di pagamento..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none"></textarea>
         </div>
 
         <div class="pt-2 flex space-x-2">
           <button type="button" onclick="closeModal()" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl font-medium">Annulla</button>
-          <button type="submit" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl font-medium shadow-lg shadow-indigo-600/30">Salva in Life 4.0</button>
+          <button type="submit" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl font-medium shadow-lg shadow-indigo-600/30">Salva Registrazione</button>
         </div>
       </form>
     </div>
@@ -141,176 +201,232 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'life40_items_data';
-    let currentTab = 'tutti';
+    const STORAGE_KEY = 'life40_hub_data';
+    let currentView = 'movimenti';
     let currentImageBase64 = '';
 
-    // Dati di partenza demo se il localStorage è vuoto
-    const defaultData = [
-      {
-        id: '1',
-        type: 'scadenza',
-        name: "Carta d'Identità",
-        date: '2026-09-15',
-        amount: 22.50,
-        notes: 'Prenotare appuntamento in Comune',
-        image: ''
-      },
-      {
-        id: '2',
-        type: 'abbonamento',
-        name: 'Netflix Premium',
-        date: '2026-08-28',
-        amount: 17.99,
-        notes: 'Rinnovo mensile carta di credito',
-        image: ''
-      },
-      {
-        id: '3',
-        type: 'garanzia',
-        name: 'MacBook Air M2',
-        date: '2027-11-20',
-        amount: 1299.00,
-        notes: 'Scontrino Apple Store Milano',
-        image: ''
-      }
-    ];
-
-    // Caricamento Dati
+    // Inizializzazione con lista vuota (nessun dato farlocco)
     function getItems() {
       const data = localStorage.getItem(STORAGE_KEY);
-      if (!data) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
-        return defaultData;
-      }
-      return JSON.parse(data);
+      return data ? JSON.parse(data) : [];
     }
 
-    function saveItemsToStorage(items) {
+    function saveItems(items) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
       renderItems();
-      updateMetrics();
+      renderReport();
+      updateDashboardMetrics();
     }
 
-    // Render della Lista
+    function clearAllData() {
+      if (confirm('Sei sicuro di voler eliminare TUTTI i dati salvati? L\'azione è irreversibile.')) {
+        localStorage.removeItem(STORAGE_KEY);
+        renderItems();
+        renderReport();
+        updateDashboardMetrics();
+      }
+    }
+
+    // Imposta il mese corrente di default nel report
+    document.addEventListener('DOMContentLoaded', () => {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      document.getElementById('report-month').value = `${yyyy}-${mm}`;
+      document.getElementById('item-date').value = today.toISOString().split('T')[0];
+      
+      renderItems();
+      renderReport();
+      updateDashboardMetrics();
+    });
+
+    // Render della Lista Movimenti e Scadenze
     function renderItems() {
       const items = getItems();
       const searchQuery = document.getElementById('search-input').value.toLowerCase();
-      const container = document.getElementById('items-container');
-      container.innerHTML = '';
+      const selectedActivity = document.getElementById('filter-activity').value;
+
+      const movContainer = document.getElementById('items-container');
+      const scadContainer = document.getElementById('scadenze-container');
+      
+      movContainer.innerHTML = '';
+      scadContainer.innerHTML = '';
 
       const filtered = items.filter(item => {
-        const matchesTab = currentTab === 'tutti' || item.type === currentTab;
-        const matchesSearch = item.name.toLowerCase().includes(searchQuery) || 
-                              (item.notes && item.notes.toLowerCase().includes(searchQuery));
-        return matchesTab && matchesSearch;
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery) || (item.notes && item.notes.toLowerCase().includes(searchQuery));
+        const matchesActivity = selectedActivity === 'tutti' || item.activity === selectedActivity;
+        return matchesSearch && matchesActivity;
       });
 
       if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="text-center py-10 text-slate-500 space-y-2">
-            <i class="fa-solid fa-box-open text-3xl opacity-50"></i>
-            <p class="text-xs">Nessun elemento trovato in questa sezione.</p>
+        movContainer.innerHTML = `
+          <div class="text-center py-12 text-slate-500 space-y-2 bg-slate-900/40 rounded-2xl border border-slate-900">
+            <i class="fa-solid fa-folder-open text-3xl opacity-40"></i>
+            <p class="text-xs">Nessun movimento inserito. Clicca su "+ Nuovo Movimento" per iniziare.</p>
           </div>
         `;
+        scadContainer.innerHTML = movContainer.innerHTML;
         return;
       }
 
-      filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+      // Ordina per data decrescente per la cassa
+      filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
       filtered.forEach(item => {
-        const daysLeft = calculateDaysLeft(item.date);
-        const iconInfo = getIconInfo(item.type);
-        
-        let badgeClass = 'bg-slate-800 text-slate-300';
-        let badgeText = `Tra ${daysLeft} gg`;
+        const isIncome = item.type === 'entrata';
+        const isExpense = item.type === 'uscita' || item.type === 'abbonamento';
+        const isDoc = item.type === 'scadenza' || item.type === 'garanzia';
 
-        if (daysLeft < 0) {
-          badgeClass = 'bg-red-500/10 text-red-400 border border-red-500/20';
-          badgeText = 'Scaduto!';
-        } else if (daysLeft <= 15) {
-          badgeClass = 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
-          badgeText = `Urgente (${daysLeft} gg)`;
-        }
+        const amountColor = isIncome ? 'text-emerald-400' : (isExpense ? 'text-red-400' : 'text-slate-300');
+        const amountSign = isIncome ? '+' : (isExpense ? '-' : '');
 
-        const el = document.createElement('div');
-        el.className = 'bg-slate-900 border border-slate-800 p-3.5 rounded-2xl flex flex-col space-y-2.5 transition hover:border-slate-700';
-        el.innerHTML = `
+        const card = document.createElement('div');
+        card.className = 'bg-slate-900 border border-slate-800 p-3 rounded-2xl flex flex-col space-y-2';
+        card.innerHTML = `
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl ${iconInfo.bg} ${iconInfo.color} flex items-center justify-center shrink-0">
-                <i class="${iconInfo.icon}"></i>
+              <div class="w-9 h-9 rounded-xl ${getBadgeBg(item.type)} flex items-center justify-center shrink-0">
+                <i class="${getIcon(item.type)}"></i>
               </div>
               <div>
-                <h4 class="font-semibold text-sm text-slate-100">${escapeHtml(item.name)}</h4>
-                <p class="text-[11px] text-slate-400">${formatDate(item.date)} ${item.amount ? '• € ' + parseFloat(item.amount).toFixed(2) : ''}</p>
+                <h4 class="font-semibold text-xs text-slate-100">${escapeHtml(item.name)}</h4>
+                <div class="flex items-center space-x-2 text-[10px] text-slate-400 mt-0.5">
+                  <span class="bg-slate-800 px-2 py-0.5 rounded-md text-slate-300 font-medium">${escapeHtml(item.activity || 'Famiglia')}</span>
+                  <span>${formatDate(item.date)}</span>
+                </div>
               </div>
             </div>
-            <span class="text-[10px] px-2.5 py-1 rounded-lg font-medium ${badgeClass}">
-              ${badgeText}
-            </span>
+            <div class="text-right">
+              <p class="font-bold text-xs ${amountColor}">${amountSign} € ${parseFloat(item.amount || 0).toFixed(2)}</p>
+            </div>
           </div>
 
-          ${item.notes ? `<p class="text-xs text-slate-400 bg-slate-950/60 p-2 rounded-xl border border-slate-800/50">${escapeHtml(item.notes)}</p>` : ''}
+          ${item.notes ? `<p class="text-[11px] text-slate-400 bg-slate-950/50 p-2 rounded-xl border border-slate-800/50">${escapeHtml(item.notes)}</p>` : ''}
 
-          <div class="flex items-center justify-between pt-1 border-t border-slate-800/50 text-xs text-slate-400">
+          <div class="flex items-center justify-between pt-1 border-t border-slate-800/40 text-[11px] text-slate-400">
             <div>
               ${item.image ? `
-                <button onclick="viewPhoto('${item.id}')" class="text-indigo-400 hover:underline flex items-center space-x-1 text-[11px]">
+                <button onclick="viewPhoto('${item.id}')" class="text-indigo-400 hover:underline flex items-center space-x-1">
                   <i class="fa-solid fa-paperclip"></i>
                   <span>Vedi Allegato</span>
                 </button>
-              ` : '<span class="text-[10px] text-slate-600">Nessun allegato</span>'}
+              ` : '<span class="text-[10px] text-slate-600">Senza allegato</span>'}
             </div>
             <div class="flex space-x-3">
-              <button onclick="editItem('${item.id}')" class="hover:text-indigo-400 transition" title="Modifica"><i class="fa-solid fa-pen"></i></button>
-              <button onclick="deleteItem('${item.id}')" class="hover:text-red-400 transition" title="Elimina"><i class="fa-solid fa-trash"></i></button>
+              <button onclick="editItem('${item.id}')" class="hover:text-indigo-400"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="deleteItem('${item.id}')" class="hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
             </div>
           </div>
         `;
-        container.appendChild(el);
+
+        movContainer.appendChild(card);
+        if (isDoc) scadContainer.appendChild(card.cloneNode(true));
       });
     }
 
-    // Calcoli Dashboard
-    function updateMetrics() {
+    // Render del Report Mensile diviso per Attività
+    function renderReport() {
       const items = getItems();
-      
-      // Totale Abbonamenti Mensili
-      const spesa = items
-        .filter(i => i.type === 'abbonamento' && i.amount)
-        .reduce((sum, i) => sum + parseFloat(i.amount), 0);
-      document.getElementById('metric-spesa').innerText = `€ ${spesa.toFixed(2)}`;
+      const selectedMonth = document.getElementById('report-month').value; // Formato YYYY-MM
+      const container = document.getElementById('report-cards-container');
+      container.innerHTML = '';
 
-      // Scadenze nei prossimi 30 giorni
-      const inScadenza = items.filter(i => {
-        const days = calculateDaysLeft(i.date);
-        return days >= 0 && days <= 30;
-      }).length;
-      document.getElementById('metric-scadenze').innerText = inScadenza;
+      if (!selectedMonth) return;
 
-      // Garanzie Attive
-      const garanzie = items.filter(i => i.type === 'garanzia' && calculateDaysLeft(i.date) >= 0).length;
-      document.getElementById('metric-garanzie').innerText = garanzie;
+      const activities = ['Famiglia / Casa', 'Attività 1', 'Attività 2', 'Attività 3', 'Attività 4', 'Attività 5'];
+      let grandTotalNet = 0;
+
+      activities.forEach(act => {
+        // Filtra gli elementi del mese selezionato per questa attività
+        const actItems = items.filter(i => {
+          const itemMonth = i.date ? i.date.substring(0, 7) : '';
+          return (i.activity === act || (!i.activity && act === 'Famiglia / Casa')) && itemMonth === selectedMonth;
+        });
+
+        const totalEntrate = actItems
+          .filter(i => i.type === 'entrata')
+          .reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
+
+        const totalUscite = actItems
+          .filter(i => i.type === 'uscita' || i.type === 'abbonamento')
+          .reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
+
+        const saldoNetto = totalEntrate - totalUscite;
+        grandTotalNet += saldoNetto;
+
+        // Visualizza solo se ci sono movimenti o per le prime attività principali
+        const hasData = actItems.length > 0;
+        
+        const card = document.createElement('div');
+        card.className = `bg-slate-900 border ${hasData ? 'border-slate-800' : 'border-slate-900 opacity-60'} p-3.5 rounded-2xl space-y-2`;
+        card.innerHTML = `
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-xs text-slate-200">${act}</h4>
+            <span class="text-[10px] px-2 py-0.5 rounded-full ${saldoNetto >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'} font-semibold">
+              ${saldoNetto >= 0 ? 'Utile' : 'Perdita'}
+            </span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 text-center pt-1 border-t border-slate-800/50">
+            <div class="bg-slate-950/50 p-2 rounded-xl">
+              <span class="text-[9px] text-slate-400 block">Incassi</span>
+              <span class="text-xs font-semibold text-emerald-400">+ € ${totalEntrate.toFixed(2)}</span>
+            </div>
+            <div class="bg-slate-950/50 p-2 rounded-xl">
+              <span class="text-[9px] text-slate-400 block">Spese</span>
+              <span class="text-xs font-semibold text-red-400">- € ${totalUscite.toFixed(2)}</span>
+            </div>
+            <div class="bg-slate-950/50 p-2 rounded-xl">
+              <span class="text-[9px] text-slate-400 block">Netto</span>
+              <span class="text-xs font-bold ${saldoNetto >= 0 ? 'text-indigo-400' : 'text-red-400'}">€ ${saldoNetto.toFixed(2)}</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      const totalNetEl = document.getElementById('report-total-net');
+      totalNetEl.innerText = `€ ${grandTotalNet.toFixed(2)}`;
+      totalNetEl.className = `text-lg font-bold ${grandTotalNet >= 0 ? 'text-emerald-400' : 'text-red-400'}`;
     }
 
-    // Gestione Modale e Form
+    // Aggiornamento Metriche Dashboard Top
+    function updateDashboardMetrics() {
+      const items = getItems();
+      const now = new Date();
+      const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+      const currentMonthItems = items.filter(i => i.date && i.date.substring(0, 7) === currentMonthStr);
+
+      const entrate = currentMonthItems.filter(i => i.type === 'entrata').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
+      const uscite = currentMonthItems.filter(i => i.type === 'uscita' || i.type === 'abbonamento').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
+      const saldo = entrate - uscite;
+
+      document.getElementById('dash-entrate').innerText = `€ ${entrate.toFixed(2)}`;
+      document.getElementById('dash-uscite').innerText = `€ ${uscite.toFixed(2)}`;
+      
+      const saldoEl = document.getElementById('dash-saldo');
+      saldoEl.innerText = `€ ${saldo.toFixed(2)}`;
+      saldoEl.className = `text-base font-bold ${saldo >= 0 ? 'text-indigo-400' : 'text-red-400'}`;
+    }
+
+    // Modal & Form Logic
     function openModal(editId = null) {
       document.getElementById('item-form').reset();
       currentImageBase64 = '';
       document.getElementById('image-preview-container').classList.add('hidden');
       document.getElementById('item-id').value = '';
+      document.getElementById('item-date').value = new Date().toISOString().split('T')[0];
 
       if (editId) {
-        const items = getItems();
-        const item = items.find(i => i.id === editId);
+        const item = getItems().find(i => i.id === editId);
         if (item) {
-          document.getElementById('modal-title').innerText = 'Modifica Voce';
+          document.getElementById('modal-title').innerText = 'Modifica Registrazione';
           document.getElementById('item-id').value = item.id;
           document.getElementById('item-type').value = item.type;
+          document.getElementById('item-activity').value = item.activity || 'Famiglia / Casa';
           document.getElementById('item-name').value = item.name;
           document.getElementById('item-date').value = item.date;
-          document.getElementById('item-amount').value = item.amount || '';
+          document.getElementById('item-amount').value = item.amount;
           document.getElementById('item-notes').value = item.notes || '';
           if (item.image) {
             currentImageBase64 = item.image;
@@ -319,10 +435,9 @@
           }
         }
       } else {
-        document.getElementById('modal-title').innerText = 'Nuova Voce';
+        document.getElementById('modal-title').innerText = 'Nuovo Movimento';
       }
 
-      toggleFormFields();
       document.getElementById('item-modal').classList.remove('hidden');
     }
 
@@ -330,34 +445,13 @@
       document.getElementById('item-modal').classList.add('hidden');
     }
 
-    function toggleFormFields() {
-      const type = document.getElementById('item-type').value;
-      const dateLabel = document.getElementById('label-date');
-      if (type === 'abbonamento') dateLabel.innerText = 'Prossimo Addebito';
-      else if (type === 'garanzia') dateLabel.innerText = 'Scadenza Garanzia';
-      else dateLabel.innerText = 'Data Scadenza';
-    }
-
-    function previewImage(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          currentImageBase64 = e.target.result;
-          document.getElementById('image-preview').src = currentImageBase64;
-          document.getElementById('image-preview-container').classList.remove('hidden');
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-
-    // Salvataggio Elemento
     function saveItem(e) {
       e.preventDefault();
       const id = document.getElementById('item-id').value || Date.now().toString();
       const newItem = {
         id: id,
         type: document.getElementById('item-type').value,
+        activity: document.getElementById('item-activity').value,
         name: document.getElementById('item-name').value,
         date: document.getElementById('item-date').value,
         amount: document.getElementById('item-amount').value,
@@ -366,18 +460,18 @@
       };
 
       let items = getItems();
-      const index = items.findIndex(i => i.id === id);
-      if (index >= 0) items[index] = newItem;
+      const idx = items.findIndex(i => i.id === id);
+      if (idx >= 0) items[idx] = newItem;
       else items.push(newItem);
 
-      saveItemsToStorage(items);
+      saveItems(items);
       closeModal();
     }
 
     function deleteItem(id) {
-      if (confirm('Vuoi davvero eliminare questa voce?')) {
+      if (confirm('Vuoi davvero cancellare questo elemento?')) {
         let items = getItems().filter(i => i.id !== id);
-        saveItemsToStorage(items);
+        saveItems(items);
       }
     }
 
@@ -385,7 +479,19 @@
       openModal(id);
     }
 
-    // Modal Foto
+    function previewImage(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          currentImageBase64 = event.target.result;
+          document.getElementById('image-preview').src = currentImageBase64;
+          document.getElementById('image-preview-container').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
     function viewPhoto(id) {
       const item = getItems().find(i => i.id === id);
       if (item && item.image) {
@@ -399,59 +505,61 @@
       document.getElementById('photo-modal').classList.add('hidden');
     }
 
-    // Export Backup JSON
     function exportData() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem(STORAGE_KEY));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `life40_backup_${new Date().toISOString().slice(0,10)}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem(STORAGE_KEY) || '[]');
+      const anchor = document.createElement('a');
+      anchor.setAttribute("href", dataStr);
+      anchor.setAttribute("download", `life40_backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
     }
 
-    // Helpers
-    function switchTab(tab) {
-      currentTab = tab;
-      ['tutti', 'scadenza', 'abbonamento', 'garanzia'].forEach(t => {
-        const btn = document.getElementById(`tab-${t}`);
-        if (t === tab) {
-          btn.classList.add('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
-          btn.classList.remove('text-slate-400');
-        } else {
-          btn.classList.remove('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
-          btn.classList.add('text-slate-400');
-        }
+    function switchTab(view) {
+      currentView = view;
+      ['movimenti', 'report', 'scadenze'].forEach(v => {
+        document.getElementById(`view-${v}`).classList.add('hidden');
+        const btn = document.getElementById(`tab-${v}`);
+        btn.classList.remove('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
+        btn.classList.add('text-slate-400');
       });
-      renderItems();
+
+      document.getElementById(`view-${view}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-${view}`);
+      activeBtn.classList.add('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
+      activeBtn.classList.remove('text-slate-400');
+
+      if (view === 'report') renderReport();
     }
 
-    function calculateDaysLeft(dateStr) {
-      const diffTime = new Date(dateStr) - new Date().setHours(0,0,0,0);
-      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    }
-
-    function formatDate(dateStr) {
-      if(!dateStr) return '';
-      const [y, m, d] = dateStr.split('-');
-      return `${d}/${m}/${y}`;
-    }
-
-    function getIconInfo(type) {
+    function getIcon(type) {
       switch(type) {
-        case 'abbonamento': return { icon: 'fa-solid fa-repeat', bg: 'bg-indigo-500/10', color: 'text-indigo-400' };
-        case 'garanzia': return { icon: 'fa-solid fa-shield-cat', bg: 'bg-emerald-500/10', color: 'text-emerald-400' };
-        default: return { icon: 'fa-solid fa-folder-open', bg: 'bg-amber-500/10', color: 'text-amber-400' };
+        case 'entrata': return 'fa-solid fa-arrow-down-left text-emerald-400';
+        case 'uscita': return 'fa-solid fa-arrow-up-right text-red-400';
+        case 'abbonamento': return 'fa-solid fa-rotate text-indigo-400';
+        case 'garanzia': return 'fa-solid fa-shield-cat text-amber-400';
+        default: return 'fa-solid fa-file-invoice text-blue-400';
       }
+    }
+
+    function getBadgeBg(type) {
+      switch(type) {
+        case 'entrata': return 'bg-emerald-500/10';
+        case 'uscita': return 'bg-red-500/10';
+        case 'abbonamento': return 'bg-indigo-500/10';
+        default: return 'bg-slate-800';
+      }
+    }
+
+    function formatDate(d) {
+      if(!d) return '';
+      const [y, m, day] = d.split('-');
+      return `${day}/${m}/${y}`;
     }
 
     function escapeHtml(str) {
       return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
-
-    // Inizializzazione
-    renderItems();
-    updateMetrics();
   </script>
 </body>
 </html>
