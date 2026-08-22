@@ -3,6 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <!-- Configurazione App Web Mobile (iOS & Android) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Life 4.0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f172a">
+  
+  <!-- Icona Personalizzata Integrata (SVG HD) -->
+  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%236366f1'/><stop offset='100%' stop-color='%238b5cf6'/></linearGradient></defs><rect width='512' height='512' rx='120' fill='%230f172a'/><circle cx='256' cy='256' r='160' fill='none' stroke='url(%23g)' stroke-width='32'/><path d='M256 120 v136 h136' fill='none' stroke='url(%23g)' stroke-width='32' stroke-linecap='round'/><circle cx='256' cy='256' r='24' fill='%2338bdf8'/></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%236366f1'/><stop offset='100%' stop-color='%238b5cf6'/></linearGradient></defs><rect width='512' height='512' rx='120' fill='%230f172a'/><circle cx='256' cy='256' r='160' fill='none' stroke='url(%23g)' stroke-width='32'/><path d='M256 120 v136 h136' fill='none' stroke='url(%23g)' stroke-width='32' stroke-linecap='round'/><circle cx='256' cy='256' r='24' fill='%2338bdf8'/></svg>">
+
   <title>Life 4.0 - Enterprise & Family Suite</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -97,7 +109,7 @@
       </button>
     </div>
 
-    <!-- VISTA 1: LISTA MOVIMENTI (RAGGRUPPATI PER AZIENDA E ORDINATI PER DATA) -->
+    <!-- VISTA 1: LISTA MOVIMENTI -->
     <div id="view-movimenti" class="space-y-3">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 no-print">
         <div class="relative">
@@ -313,7 +325,6 @@
     let itemsList = [];
     let activityNames = ["Casa / Famiglia", "Attività 1", "Attività 2", "Attività 3", "Attività 4", "Attività 5"];
 
-    // COLORI E TEMA DEDICATI PER CIASCUNA DELLE 6 AZIENDE
     const ACTIVITY_THEMES = [
       { bg: 'bg-indigo-950/30', border: 'border-indigo-500/40', text: 'text-indigo-400', badge: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', headerBg: 'bg-indigo-900/30' },
       { bg: 'bg-emerald-950/30', border: 'border-emerald-500/40', text: 'text-emerald-400', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', headerBg: 'bg-emerald-900/30' },
@@ -329,11 +340,13 @@
       return ACTIVITY_THEMES[themeIndex];
     }
 
+    // CATEGORIE DI SPESA AGGIORNATE CON LE NUOVE VOCI
     const CATEGORIES_USCITE = [
       "Corrente & Utilità", "Telefono & Internet", "Tasse & Fisco", "Abbonamenti & Software",
       "Viaggi & Trasporti", "Svago & Intrattenimento", "Alcolici & Bar", "Spesa Alimentare",
       "Affitto & Mutuo", "Forniture & Materiali", "Consulenze & Servizi", "Manutenzioni & Riparazioni",
-      "Carburante & Veicoli", "Assicurazioni", "Stipendi & Collaboratori", "Altro Uscita"
+      "Carburante & Veicoli", "Assicurazioni", "Stipendi & Collaboratori", "Giochi & Lotterie",
+      "Sigarette & Vizi", "Elettronica", "Vestiti & Moda", "Altro Uscita"
     ];
 
     const CATEGORIES_ENTRATE = [
@@ -552,7 +565,6 @@
       }
     }
 
-    // RAGGRUPPATI AZIENDA PER AZIENDA E PER DATA CHRONOLOGICA
     function renderItems() {
       const searchQuery = document.getElementById('search-input').value.toLowerCase();
       const selectedActivity = document.getElementById('filter-activity').value;
@@ -560,7 +572,6 @@
       const container = document.getElementById('items-container');
       container.innerHTML = '';
 
-      // Filtro di base
       const filtered = itemsList.filter(item => {
         const matchesSearch = item.name.toLowerCase().includes(searchQuery) || 
                               (item.notes && item.notes.toLowerCase().includes(searchQuery)) ||
@@ -575,26 +586,21 @@
         return;
       }
 
-      // Aziende da mostrare
       const activeActivities = activityNames.filter(act => selectedActivity === 'tutti' || selectedActivity === act);
 
       activeActivities.forEach(act => {
-        // Prendi tutti i movimenti di questa azienda
         const actItems = filtered.filter(i => (i.activity === act || (!i.activity && act === activityNames[0])));
         
         if (actItems.length === 0) return;
 
-        // Ordina per DATA (dal più recente al meno recente)
         actItems.sort((a, b) => new Date(b.date) - new Date(a.date));
 
         const theme = getActivityTheme(act);
 
-        // Calcola Saldo Azienda
         const totEntrate = actItems.filter(i => i.type === 'entrata').reduce((s, i) => s + parseFloat(i.amount || 0), 0);
         const totUscite = actItems.filter(i => i.type === 'uscita' || i.type === 'abbonamento').reduce((s, i) => s + parseFloat(i.amount || 0), 0);
         const saldoAct = totEntrate - totUscite;
 
-        // Blocco Sezione Azienda
         const actSection = document.createElement('div');
         actSection.className = `border ${theme.border} ${theme.bg} rounded-2xl p-3 space-y-2.5`;
         
