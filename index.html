@@ -1,1 +1,225 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Life Admin App - Prototipo MVP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans pb-20">
 
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">
+          <i class="fa-solid fa-shield-halved text-sm"></i>
+        </div>
+        <span class="font-bold text-lg tracking-tight">LifeAdmin</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded-full font-medium">PROTOTIPO MVP</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-md mx-auto px-4 pt-6 space-y-6">
+
+    <!-- Metric Cards -->
+    <div class="grid grid-cols-3 gap-3">
+      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl">
+        <p class="text-xs text-slate-400 mb-1">Spesa Mese</p>
+        <p class="text-lg font-bold text-indigo-400">€ 42.98</p>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl">
+        <p class="text-xs text-slate-400 mb-1">Scadenze 30gg</p>
+        <p class="text-lg font-bold text-amber-400">2</p>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl">
+        <p class="text-xs text-slate-400 mb-1">Garanzie</p>
+        <p class="text-lg font-bold text-emerald-400">5 Attive</p>
+      </div>
+    </div>
+
+    <!-- Quick AI Scan Button -->
+    <div class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 p-4 rounded-2xl relative overflow-hidden">
+      <div class="relative z-10">
+        <h2 class="text-sm font-semibold text-indigo-200 mb-1"><i class="fa-solid fa-wand-magic-sparkles mr-2 text-indigo-400"></i>Scannerizza Documento o Scontrino</h2>
+        <p class="text-xs text-slate-400 mb-3">L'IA estrarrà scadenze, importi e garanzie in automatico.</p>
+        <button onclick="simulateScan()" id="scan-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-xl text-sm transition flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/30">
+          <i class="fa-solid fa-camera"></i>
+          <span>Simula Caricamento / Scansione</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="flex border-b border-slate-800 text-sm font-medium text-slate-400">
+      <button onclick="switchTab('scadenze')" id="tab-scadenze" class="flex-1 pb-3 text-indigo-400 border-b-2 border-indigo-500 font-semibold transition">Scadenze & Doc</button>
+      <button onclick="switchTab('abbonamenti')" id="tab-abbonamenti" class="flex-1 pb-3 transition">Abbonamenti</button>
+      <button onclick="switchTab('garanzie')" id="tab-garanzie" class="flex-1 pb-3 transition">Garanzie</button>
+    </div>
+
+    <!-- TAB 1: Scadenze -->
+    <div id="sec-scadenze" class="space-y-3">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Scadenze In Arrivo</h3>
+        <button onclick="addMockItem('scadenza')" class="text-xs text-indigo-400 hover:underline">+ Aggiungi</button>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+            <i class="fa-solid fa-id-card"></i>
+          </div>
+          <div>
+            <p class="font-medium text-sm">Carta d'Identità</p>
+            <p class="text-xs text-slate-400">Rinnovo richiesto</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-md">Tra 14 gg</span>
+          <p class="text-[10px] text-slate-500 mt-1">12 Set 2026</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+            <i class="fa-solid fa-car"></i>
+          </div>
+          <div>
+            <p class="font-medium text-sm">Bollo Auto</p>
+            <p class="text-xs text-slate-400">Fiat Panda (AB123CD)</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md">Tra 45 gg</span>
+          <p class="text-[10px] text-slate-500 mt-1">€ 180.00</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Abbonamenti -->
+    <div id="sec-abbonamenti" class="space-y-3 hidden">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ricorrenze Attive</h3>
+        <button onclick="addMockItem('abbonamento')" class="text-xs text-indigo-400 hover:underline">+ Aggiungi</button>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center">
+            <i class="fa-solid fa-tv"></i>
+          </div>
+          <div>
+            <p class="font-medium text-sm">Netflix Standard</p>
+            <p class="text-xs text-slate-400">Rinnovo mensile</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="font-semibold text-sm">€ 12.99 / m</p>
+          <p class="text-[10px] text-slate-500">Addebito il 28</p>
+        </div>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+            <i class="fa-solid fa-music"></i>
+          </div>
+          <div>
+            <p class="font-medium text-sm">Spotify Premium</p>
+            <p class="text-xs text-slate-400">Piano Individuale</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <p class="font-semibold text-sm">€ 10.99 / m</p>
+          <p class="text-[10px] text-slate-500">Addebito il 02</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Garanzie -->
+    <div id="sec-garanzie" class="space-y-3 hidden">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Prodotti in Garanzia</h3>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
+            <i class="fa-solid fa-laptop"></i>
+          </div>
+          <div>
+            <p class="font-medium text-sm">MacBook Air M2</p>
+            <p class="text-xs text-slate-400">Scontrino Unieuro</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md">Attiva</span>
+          <p class="text-[10px] text-slate-500 mt-1">Scade Nov 2027</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    function switchTab(tabName) {
+      ['scadenze', 'abbonamenti', 'garanzie'].forEach(t => {
+        document.getElementById(`sec-${t}`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).classList.remove('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
+        document.getElementById(`tab-${t}`).classList.add('text-slate-400');
+      });
+
+      document.getElementById(`sec-${tabName}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabName}`).classList.add('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
+      document.getElementById(`tab-${tabName}`).classList.remove('text-slate-400');
+    }
+
+    function simulateScan() {
+      const btn = document.getElementById('scan-btn');
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Analisi IA in corso...</span>';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> <span>Scontrino Estratto!</span>';
+        
+        // Aggiunge un elemento alla sezione Garanzie
+        const garanzieSec = document.getElementById('sec-garanzie');
+        const newItem = document.createElement('div');
+        newItem.className = 'bg-slate-900 border border-emerald-500/40 p-3 rounded-xl flex items-center justify-between animate-pulse';
+        newItem.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
+              <i class="fa-solid fa-plug"></i>
+            </div>
+            <div>
+              <p class="font-medium text-sm">Caffettiera DeLonghi (IA)</p>
+              <p class="text-xs text-slate-400">MediaWorld • € 89.90</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md">Garanzia 2 Anni</span>
+            <p class="text-[10px] text-slate-500 mt-1">Scade Ago 2028</p>
+          </div>
+        `;
+        garanzieSec.prepend(newItem);
+        
+        setTimeout(() => {
+          btn.innerHTML = '<i class="fa-solid fa-camera"></i> <span>Simula Caricamento / Scansione</span>';
+          btn.disabled = false;
+          switchTab('garanzie');
+        }, 1200);
+
+      }, 1500);
+    }
+
+    function addMockItem(type) {
+      alert(`Funzionalità MVP: qui si aprirà il form rapido per inserire un nuovo elemento (${type}).`);
+    }
+  </script>
+</body>
+</html>
