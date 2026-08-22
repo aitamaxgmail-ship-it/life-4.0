@@ -3,223 +3,455 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Life Admin App - Prototipo MVP</title>
+  <title>Life 4.0 - La tua vita senza burocrazia</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans pb-20">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans pb-24">
 
   <!-- Header -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50">
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
     <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center space-x-2">
-        <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">
-          <i class="fa-solid fa-shield-halved text-sm"></i>
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">
+          <i class="fa-solid fa-bolt text-base"></i>
         </div>
-        <span class="font-bold text-lg tracking-tight">LifeAdmin</span>
+        <div>
+          <h1 class="font-bold text-lg tracking-tight leading-none">Life 4.0</h1>
+          <p class="text-[10px] text-indigo-400 font-medium">LIVING SYSTEM</p>
+        </div>
       </div>
       <div class="flex items-center space-x-2">
-        <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded-full font-medium">PROTOTIPO MVP</span>
+        <button onclick="exportData()" title="Backup Dati" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs">
+          <i class="fa-solid fa-download"></i>
+        </button>
+        <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md shadow-indigo-600/30 flex items-center space-x-1">
+          <i class="fa-solid fa-plus"></i>
+          <span>Nuovo</span>
+        </button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-md mx-auto px-4 pt-6 space-y-6">
+  <main class="max-w-md mx-auto px-4 pt-5 space-y-5">
 
-    <!-- Metric Cards -->
-    <div class="grid grid-cols-3 gap-3">
-      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl">
-        <p class="text-xs text-slate-400 mb-1">Spesa Mese</p>
-        <p class="text-lg font-bold text-indigo-400">€ 42.98</p>
+    <!-- Dashboard Metrics -->
+    <div class="grid grid-cols-3 gap-2.5">
+      <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl">
+        <span class="text-[11px] text-slate-400 block mb-0.5">Spesa Mese</span>
+        <span id="metric-spesa" class="text-base font-bold text-indigo-400">€ 0.00</span>
       </div>
-      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl">
-        <p class="text-xs text-slate-400 mb-1">Scadenze 30gg</p>
-        <p class="text-lg font-bold text-amber-400">2</p>
+      <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl">
+        <span class="text-[11px] text-slate-400 block mb-0.5">In Scadenza</span>
+        <span id="metric-scadenze" class="text-base font-bold text-amber-400">0</span>
       </div>
-      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl">
-        <p class="text-xs text-slate-400 mb-1">Garanzie</p>
-        <p class="text-lg font-bold text-emerald-400">5 Attive</p>
+      <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl">
+        <span class="text-[11px] text-slate-400 block mb-0.5">Garanzie</span>
+        <span id="metric-garanzie" class="text-base font-bold text-emerald-400">0</span>
       </div>
     </div>
 
-    <!-- Quick AI Scan Button -->
-    <div class="bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-500/30 p-4 rounded-2xl relative overflow-hidden">
-      <div class="relative z-10">
-        <h2 class="text-sm font-semibold text-indigo-200 mb-1"><i class="fa-solid fa-wand-magic-sparkles mr-2 text-indigo-400"></i>Scannerizza Documento o Scontrino</h2>
-        <p class="text-xs text-slate-400 mb-3">L'IA estrarrà scadenze, importi e garanzie in automatico.</p>
-        <button onclick="simulateScan()" id="scan-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded-xl text-sm transition flex items-center justify-center space-x-2 shadow-lg shadow-indigo-600/30">
-          <i class="fa-solid fa-camera"></i>
-          <span>Simula Caricamento / Scansione</span>
-        </button>
-      </div>
+    <!-- Barra di Ricerca -->
+    <div class="relative">
+      <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-xs"></i>
+      <input type="text" id="search-input" oninput="renderItems()" placeholder="Cerca documento, abbonamento o garanzia..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
     </div>
 
-    <!-- Tabs Navigation -->
-    <div class="flex border-b border-slate-800 text-sm font-medium text-slate-400">
-      <button onclick="switchTab('scadenze')" id="tab-scadenze" class="flex-1 pb-3 text-indigo-400 border-b-2 border-indigo-500 font-semibold transition">Scadenze & Doc</button>
-      <button onclick="switchTab('abbonamenti')" id="tab-abbonamenti" class="flex-1 pb-3 transition">Abbonamenti</button>
-      <button onclick="switchTab('garanzie')" id="tab-garanzie" class="flex-1 pb-3 transition">Garanzie</button>
+    <!-- Navigation Tabs -->
+    <div class="flex border-b border-slate-800 text-xs font-medium text-slate-400">
+      <button onclick="switchTab('tutti')" id="tab-tutti" class="flex-1 pb-2.5 text-indigo-400 border-b-2 border-indigo-500 font-semibold transition">Tutti</button>
+      <button onclick="switchTab('scadenza')" id="tab-scadenza" class="flex-1 pb-2.5 transition">Scadenze</button>
+      <button onclick="switchTab('abbonamento')" id="tab-abbonamento" class="flex-1 pb-2.5 transition">Abbonamenti</button>
+      <button onclick="switchTab('garanzia')" id="tab-garanzia" class="flex-1 pb-2.5 transition">Garanzie</button>
     </div>
 
-    <!-- TAB 1: Scadenze -->
-    <div id="sec-scadenze" class="space-y-3">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Scadenze In Arrivo</h3>
-        <button onclick="addMockItem('scadenza')" class="text-xs text-indigo-400 hover:underline">+ Aggiungi</button>
-      </div>
-
-      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
-            <i class="fa-solid fa-id-card"></i>
-          </div>
-          <div>
-            <p class="font-medium text-sm">Carta d'Identità</p>
-            <p class="text-xs text-slate-400">Rinnovo richiesto</p>
-          </div>
-        </div>
-        <div class="text-right">
-          <span class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded-md">Tra 14 gg</span>
-          <p class="text-[10px] text-slate-500 mt-1">12 Set 2026</p>
-        </div>
-      </div>
-
-      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
-            <i class="fa-solid fa-car"></i>
-          </div>
-          <div>
-            <p class="font-medium text-sm">Bollo Auto</p>
-            <p class="text-xs text-slate-400">Fiat Panda (AB123CD)</p>
-          </div>
-        </div>
-        <div class="text-right">
-          <span class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md">Tra 45 gg</span>
-          <p class="text-[10px] text-slate-500 mt-1">€ 180.00</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 2: Abbonamenti -->
-    <div id="sec-abbonamenti" class="space-y-3 hidden">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Ricorrenze Attive</h3>
-        <button onclick="addMockItem('abbonamento')" class="text-xs text-indigo-400 hover:underline">+ Aggiungi</button>
-      </div>
-
-      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-lg bg-red-500/10 text-red-400 flex items-center justify-center">
-            <i class="fa-solid fa-tv"></i>
-          </div>
-          <div>
-            <p class="font-medium text-sm">Netflix Standard</p>
-            <p class="text-xs text-slate-400">Rinnovo mensile</p>
-          </div>
-        </div>
-        <div class="text-right">
-          <p class="font-semibold text-sm">€ 12.99 / m</p>
-          <p class="text-[10px] text-slate-500">Addebito il 28</p>
-        </div>
-      </div>
-
-      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-            <i class="fa-solid fa-music"></i>
-          </div>
-          <div>
-            <p class="font-medium text-sm">Spotify Premium</p>
-            <p class="text-xs text-slate-400">Piano Individuale</p>
-          </div>
-        </div>
-        <div class="text-right">
-          <p class="font-semibold text-sm">€ 10.99 / m</p>
-          <p class="text-[10px] text-slate-500">Addebito il 02</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- TAB 3: Garanzie -->
-    <div id="sec-garanzie" class="space-y-3 hidden">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Prodotti in Garanzia</h3>
-      </div>
-
-      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
-            <i class="fa-solid fa-laptop"></i>
-          </div>
-          <div>
-            <p class="font-medium text-sm">MacBook Air M2</p>
-            <p class="text-xs text-slate-400">Scontrino Unieuro</p>
-          </div>
-        </div>
-        <div class="text-right">
-          <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md">Attiva</span>
-          <p class="text-[10px] text-slate-500 mt-1">Scade Nov 2027</p>
-        </div>
-      </div>
+    <!-- Lista Elementi -->
+    <div id="items-container" class="space-y-3">
+      <!-- Gli elementi verranno inseriti dinamicamente dal Javascript -->
     </div>
 
   </main>
 
+  <!-- MODALE AGGIUNTA / MODIFICA -->
+  <div id="item-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 id="modal-title" class="font-bold text-base text-slate-100">Nuova Voce</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="item-form" onsubmit="saveItem(event)" class="space-y-3.5 text-xs">
+        <input type="hidden" id="item-id">
+
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">Tipologia</label>
+          <select id="item-type" onchange="toggleFormFields()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none">
+            <option value="scadenza">Scadenza Documento / Veicolo</option>
+            <option value="abbonamento">Abbonamento Ricorrente</option>
+            <option value="garanzia">Scontrino & Garanzia Prodotto</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">Titolo / Nome</label>
+          <input type="text" id="item-name" required placeholder="es. Carta Identità, Netflix, MacBook Pro" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 mb-1 font-medium" id="label-date">Data Scadenza</label>
+            <input type="date" id="item-date" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-slate-400 mb-1 font-medium">Importo (€)</label>
+            <input type="number" step="0.01" id="item-amount" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">Foto Scontrino / Documento</label>
+          <input type="file" id="item-file" accept="image/*" onchange="previewImage(event)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-400 file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-indigo-600 file:text-white">
+          <div id="image-preview-container" class="mt-2 hidden">
+            <img id="image-preview" src="" alt="Anteprima" class="w-full h-32 object-cover rounded-xl border border-slate-800">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 mb-1 font-medium">Note aggiuntive</label>
+          <textarea id="item-notes" rows="2" placeholder="Codice abbonamento, numero di serie, clausole..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 focus:border-indigo-500 outline-none"></textarea>
+        </div>
+
+        <div class="pt-2 flex space-x-2">
+          <button type="button" onclick="closeModal()" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl font-medium">Annulla</button>
+          <button type="submit" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl font-medium shadow-lg shadow-indigo-600/30">Salva in Life 4.0</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODALE VISUALIZZAZIONE FOTO -->
+  <div id="photo-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="max-w-md w-full space-y-3">
+      <div class="flex justify-between items-center text-white">
+        <h4 id="photo-title" class="font-semibold text-sm">Allegato</h4>
+        <button onclick="closePhotoModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+      </div>
+      <img id="photo-img" src="" class="w-full max-h-[75vh] object-contain rounded-2xl border border-slate-800">
+    </div>
+  </div>
+
   <script>
-    function switchTab(tabName) {
-      ['scadenze', 'abbonamenti', 'garanzie'].forEach(t => {
-        document.getElementById(`sec-${t}`).classList.add('hidden');
-        document.getElementById(`tab-${t}`).classList.remove('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
-        document.getElementById(`tab-${t}`).classList.add('text-slate-400');
+    const STORAGE_KEY = 'life40_items_data';
+    let currentTab = 'tutti';
+    let currentImageBase64 = '';
+
+    // Dati di partenza demo se il localStorage è vuoto
+    const defaultData = [
+      {
+        id: '1',
+        type: 'scadenza',
+        name: "Carta d'Identità",
+        date: '2026-09-15',
+        amount: 22.50,
+        notes: 'Prenotare appuntamento in Comune',
+        image: ''
+      },
+      {
+        id: '2',
+        type: 'abbonamento',
+        name: 'Netflix Premium',
+        date: '2026-08-28',
+        amount: 17.99,
+        notes: 'Rinnovo mensile carta di credito',
+        image: ''
+      },
+      {
+        id: '3',
+        type: 'garanzia',
+        name: 'MacBook Air M2',
+        date: '2027-11-20',
+        amount: 1299.00,
+        notes: 'Scontrino Apple Store Milano',
+        image: ''
+      }
+    ];
+
+    // Caricamento Dati
+    function getItems() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (!data) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData));
+        return defaultData;
+      }
+      return JSON.parse(data);
+    }
+
+    function saveItemsToStorage(items) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      renderItems();
+      updateMetrics();
+    }
+
+    // Render della Lista
+    function renderItems() {
+      const items = getItems();
+      const searchQuery = document.getElementById('search-input').value.toLowerCase();
+      const container = document.getElementById('items-container');
+      container.innerHTML = '';
+
+      const filtered = items.filter(item => {
+        const matchesTab = currentTab === 'tutti' || item.type === currentTab;
+        const matchesSearch = item.name.toLowerCase().includes(searchQuery) || 
+                              (item.notes && item.notes.toLowerCase().includes(searchQuery));
+        return matchesTab && matchesSearch;
       });
 
-      document.getElementById(`sec-${tabName}`).classList.remove('hidden');
-      document.getElementById(`tab-${tabName}`).classList.add('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
-      document.getElementById(`tab-${tabName}`).classList.remove('text-slate-400');
-    }
-
-    function simulateScan() {
-      const btn = document.getElementById('scan-btn');
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Analisi IA in corso...</span>';
-      btn.disabled = true;
-
-      setTimeout(() => {
-        btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> <span>Scontrino Estratto!</span>';
-        
-        // Aggiunge un elemento alla sezione Garanzie
-        const garanzieSec = document.getElementById('sec-garanzie');
-        const newItem = document.createElement('div');
-        newItem.className = 'bg-slate-900 border border-emerald-500/40 p-3 rounded-xl flex items-center justify-between animate-pulse';
-        newItem.innerHTML = `
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
-              <i class="fa-solid fa-plug"></i>
-            </div>
-            <div>
-              <p class="font-medium text-sm">Caffettiera DeLonghi (IA)</p>
-              <p class="text-xs text-slate-400">MediaWorld • € 89.90</p>
-            </div>
-          </div>
-          <div class="text-right">
-            <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md">Garanzia 2 Anni</span>
-            <p class="text-[10px] text-slate-500 mt-1">Scade Ago 2028</p>
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-10 text-slate-500 space-y-2">
+            <i class="fa-solid fa-box-open text-3xl opacity-50"></i>
+            <p class="text-xs">Nessun elemento trovato in questa sezione.</p>
           </div>
         `;
-        garanzieSec.prepend(newItem);
+        return;
+      }
+
+      filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      filtered.forEach(item => {
+        const daysLeft = calculateDaysLeft(item.date);
+        const iconInfo = getIconInfo(item.type);
         
-        setTimeout(() => {
-          btn.innerHTML = '<i class="fa-solid fa-camera"></i> <span>Simula Caricamento / Scansione</span>';
-          btn.disabled = false;
-          switchTab('garanzie');
-        }, 1200);
+        let badgeClass = 'bg-slate-800 text-slate-300';
+        let badgeText = `Tra ${daysLeft} gg`;
 
-      }, 1500);
+        if (daysLeft < 0) {
+          badgeClass = 'bg-red-500/10 text-red-400 border border-red-500/20';
+          badgeText = 'Scaduto!';
+        } else if (daysLeft <= 15) {
+          badgeClass = 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+          badgeText = `Urgente (${daysLeft} gg)`;
+        }
+
+        const el = document.createElement('div');
+        el.className = 'bg-slate-900 border border-slate-800 p-3.5 rounded-2xl flex flex-col space-y-2.5 transition hover:border-slate-700';
+        el.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-xl ${iconInfo.bg} ${iconInfo.color} flex items-center justify-center shrink-0">
+                <i class="${iconInfo.icon}"></i>
+              </div>
+              <div>
+                <h4 class="font-semibold text-sm text-slate-100">${escapeHtml(item.name)}</h4>
+                <p class="text-[11px] text-slate-400">${formatDate(item.date)} ${item.amount ? '• € ' + parseFloat(item.amount).toFixed(2) : ''}</p>
+              </div>
+            </div>
+            <span class="text-[10px] px-2.5 py-1 rounded-lg font-medium ${badgeClass}">
+              ${badgeText}
+            </span>
+          </div>
+
+          ${item.notes ? `<p class="text-xs text-slate-400 bg-slate-950/60 p-2 rounded-xl border border-slate-800/50">${escapeHtml(item.notes)}</p>` : ''}
+
+          <div class="flex items-center justify-between pt-1 border-t border-slate-800/50 text-xs text-slate-400">
+            <div>
+              ${item.image ? `
+                <button onclick="viewPhoto('${item.id}')" class="text-indigo-400 hover:underline flex items-center space-x-1 text-[11px]">
+                  <i class="fa-solid fa-paperclip"></i>
+                  <span>Vedi Allegato</span>
+                </button>
+              ` : '<span class="text-[10px] text-slate-600">Nessun allegato</span>'}
+            </div>
+            <div class="flex space-x-3">
+              <button onclick="editItem('${item.id}')" class="hover:text-indigo-400 transition" title="Modifica"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="deleteItem('${item.id}')" class="hover:text-red-400 transition" title="Elimina"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </div>
+        `;
+        container.appendChild(el);
+      });
     }
 
-    function addMockItem(type) {
-      alert(`Funzionalità MVP: qui si aprirà il form rapido per inserire un nuovo elemento (${type}).`);
+    // Calcoli Dashboard
+    function updateMetrics() {
+      const items = getItems();
+      
+      // Totale Abbonamenti Mensili
+      const spesa = items
+        .filter(i => i.type === 'abbonamento' && i.amount)
+        .reduce((sum, i) => sum + parseFloat(i.amount), 0);
+      document.getElementById('metric-spesa').innerText = `€ ${spesa.toFixed(2)}`;
+
+      // Scadenze nei prossimi 30 giorni
+      const inScadenza = items.filter(i => {
+        const days = calculateDaysLeft(i.date);
+        return days >= 0 && days <= 30;
+      }).length;
+      document.getElementById('metric-scadenze').innerText = inScadenza;
+
+      // Garanzie Attive
+      const garanzie = items.filter(i => i.type === 'garanzia' && calculateDaysLeft(i.date) >= 0).length;
+      document.getElementById('metric-garanzie').innerText = garanzie;
     }
+
+    // Gestione Modale e Form
+    function openModal(editId = null) {
+      document.getElementById('item-form').reset();
+      currentImageBase64 = '';
+      document.getElementById('image-preview-container').classList.add('hidden');
+      document.getElementById('item-id').value = '';
+
+      if (editId) {
+        const items = getItems();
+        const item = items.find(i => i.id === editId);
+        if (item) {
+          document.getElementById('modal-title').innerText = 'Modifica Voce';
+          document.getElementById('item-id').value = item.id;
+          document.getElementById('item-type').value = item.type;
+          document.getElementById('item-name').value = item.name;
+          document.getElementById('item-date').value = item.date;
+          document.getElementById('item-amount').value = item.amount || '';
+          document.getElementById('item-notes').value = item.notes || '';
+          if (item.image) {
+            currentImageBase64 = item.image;
+            document.getElementById('image-preview').src = item.image;
+            document.getElementById('image-preview-container').classList.remove('hidden');
+          }
+        }
+      } else {
+        document.getElementById('modal-title').innerText = 'Nuova Voce';
+      }
+
+      toggleFormFields();
+      document.getElementById('item-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('item-modal').classList.add('hidden');
+    }
+
+    function toggleFormFields() {
+      const type = document.getElementById('item-type').value;
+      const dateLabel = document.getElementById('label-date');
+      if (type === 'abbonamento') dateLabel.innerText = 'Prossimo Addebito';
+      else if (type === 'garanzia') dateLabel.innerText = 'Scadenza Garanzia';
+      else dateLabel.innerText = 'Data Scadenza';
+    }
+
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          currentImageBase64 = e.target.result;
+          document.getElementById('image-preview').src = currentImageBase64;
+          document.getElementById('image-preview-container').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Salvataggio Elemento
+    function saveItem(e) {
+      e.preventDefault();
+      const id = document.getElementById('item-id').value || Date.now().toString();
+      const newItem = {
+        id: id,
+        type: document.getElementById('item-type').value,
+        name: document.getElementById('item-name').value,
+        date: document.getElementById('item-date').value,
+        amount: document.getElementById('item-amount').value,
+        notes: document.getElementById('item-notes').value,
+        image: currentImageBase64
+      };
+
+      let items = getItems();
+      const index = items.findIndex(i => i.id === id);
+      if (index >= 0) items[index] = newItem;
+      else items.push(newItem);
+
+      saveItemsToStorage(items);
+      closeModal();
+    }
+
+    function deleteItem(id) {
+      if (confirm('Vuoi davvero eliminare questa voce?')) {
+        let items = getItems().filter(i => i.id !== id);
+        saveItemsToStorage(items);
+      }
+    }
+
+    function editItem(id) {
+      openModal(id);
+    }
+
+    // Modal Foto
+    function viewPhoto(id) {
+      const item = getItems().find(i => i.id === id);
+      if (item && item.image) {
+        document.getElementById('photo-title').innerText = item.name;
+        document.getElementById('photo-img').src = item.image;
+        document.getElementById('photo-modal').classList.remove('hidden');
+      }
+    }
+
+    function closePhotoModal() {
+      document.getElementById('photo-modal').classList.add('hidden');
+    }
+
+    // Export Backup JSON
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(localStorage.getItem(STORAGE_KEY));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `life40_backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    // Helpers
+    function switchTab(tab) {
+      currentTab = tab;
+      ['tutti', 'scadenza', 'abbonamento', 'garanzia'].forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === tab) {
+          btn.classList.add('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
+          btn.classList.remove('text-slate-400');
+        } else {
+          btn.classList.remove('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
+          btn.classList.add('text-slate-400');
+        }
+      });
+      renderItems();
+    }
+
+    function calculateDaysLeft(dateStr) {
+      const diffTime = new Date(dateStr) - new Date().setHours(0,0,0,0);
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    function formatDate(dateStr) {
+      if(!dateStr) return '';
+      const [y, m, d] = dateStr.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
+    function getIconInfo(type) {
+      switch(type) {
+        case 'abbonamento': return { icon: 'fa-solid fa-repeat', bg: 'bg-indigo-500/10', color: 'text-indigo-400' };
+        case 'garanzia': return { icon: 'fa-solid fa-shield-cat', bg: 'bg-emerald-500/10', color: 'text-emerald-400' };
+        default: return { icon: 'fa-solid fa-folder-open', bg: 'bg-amber-500/10', color: 'text-amber-400' };
+      }
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    // Inizializzazione
+    renderItems();
+    updateMetrics();
   </script>
 </body>
 </html>
