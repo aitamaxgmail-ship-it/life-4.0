@@ -9,44 +9,67 @@
   
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    @media print {
+      body { background: white !important; color: black !important; padding-bottom: 0 !important; }
+      #cloud-status-bar, header, .no-print, button, input, select, .tab-buttons { display: none !important; }
+      .print-area { display: block !important; width: 100% !important; margin: 0 !important; }
+      .bg-slate-900, .bg-slate-950, .bg-slate-800 { background: white !important; border: 1px solid #ddd !important; color: black !important; }
+      .text-slate-100, .text-slate-200, .text-slate-300, .text-slate-400, .text-indigo-300, .text-indigo-400 { color: black !important; }
+      .text-emerald-400 { color: #059669 !important; }
+      .text-red-400 { color: #dc2626 !important; }
+      .border-slate-800, .border-slate-700 { border-color: #eee !important; }
+      .shadow-lg, .shadow-md, .backdrop-blur { box-shadow: none !important; filter: none !important; }
+      .page-break { page-break-before: always; }
+    }
+  </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans pb-24">
 
-  <!-- Status Bar Cloud -->
+  <!-- Status Bar Cloud & Alert Scadenze -->
   <div id="cloud-status-bar" class="bg-emerald-500/10 border-b border-emerald-500/20 text-emerald-300 text-[11px] py-1.5 px-4 flex items-center justify-center space-x-2">
     <i class="fa-solid fa-cloud"></i>
     <span id="cloud-status-text">Cloud Sincronizzato con Firebase (Realtime Attivo)</span>
   </div>
 
+  <div id="alert-scadenze-bar" class="hidden bg-amber-500/20 border-b border-amber-500/30 text-amber-300 text-xs py-2 px-4 flex items-center justify-between no-print">
+    <div class="flex items-center space-x-2">
+      <i class="fa-solid fa-triangle-exclamation text-amber-400 text-sm"></i>
+      <span id="alert-scadenze-text" class="font-medium">Attenzione: Ci sono documenti in scadenza!</span>
+    </div>
+    <button onclick="switchTab('scadenze')" class="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-[10px] font-bold">Vedi Scadenze</button>
+  </div>
+
   <!-- Header -->
-  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
-    <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
+  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40 no-print">
+    <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/30">
           <i class="fa-solid fa-chart-pie text-base"></i>
         </div>
         <div>
           <h1 class="font-bold text-lg tracking-tight leading-none">Life 4.0</h1>
-          <p class="text-[10px] text-indigo-400 font-medium">GESTIONALE AZIENDE & FAMIGLIA</p>
+          <p class="text-[10px] text-indigo-400 font-medium">GESTIONALE AZIENDE, FAMIGLIA & DOCUMENTI</p>
         </div>
       </div>
       <div class="flex items-center space-x-2">
         <button onclick="openActivitiesModal()" title="Personalizza Nomi Attività" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center space-x-1">
           <i class="fa-solid fa-sliders"></i>
-          <span class="hidden sm:inline">Nomi Attività</span>
+          <span class="hidden sm:inline">Attività</span>
         </button>
         <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-md shadow-indigo-600/30 flex items-center space-x-1">
           <i class="fa-solid fa-plus"></i>
-          <span>Nuovo Movimento</span>
+          <span>Nuovo Inserimento</span>
         </button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-xl mx-auto px-4 pt-5 space-y-5">
+  <main class="max-w-2xl mx-auto px-4 pt-5 space-y-5 print-area">
 
     <!-- Dashboard Quick Totals -->
-    <div class="grid grid-cols-3 gap-2.5">
+    <div class="grid grid-cols-3 gap-2.5 no-print">
       <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl">
         <span class="text-[11px] text-slate-400 block mb-0.5">Entrate Mese</span>
         <span id="dash-entrate" class="text-base font-bold text-emerald-400">€ 0.00</span>
@@ -62,15 +85,18 @@
     </div>
 
     <!-- Navigation Main Tabs -->
-    <div class="flex border-b border-slate-800 text-xs font-medium text-slate-400">
+    <div class="flex border-b border-slate-800 text-xs font-medium text-slate-400 no-print">
       <button onclick="switchTab('movimenti')" id="tab-movimenti" class="flex-1 pb-2.5 text-indigo-400 border-b-2 border-indigo-500 font-semibold transition">Movimenti</button>
       <button onclick="switchTab('report')" id="tab-report" class="flex-1 pb-2.5 transition">Report & Fine Anno</button>
-      <button onclick="switchTab('scadenze')" id="tab-scadenze" class="flex-1 pb-2.5 transition">Documenti & Scadenze</button>
+      <button onclick="switchTab('scadenze')" id="tab-scadenze" class="flex-1 pb-2.5 transition flex items-center justify-center space-x-1">
+        <span>Documenti & Scadenze</span>
+        <span id="scadenze-badge" class="hidden bg-amber-500 text-slate-950 text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">!</span>
+      </button>
     </div>
 
     <!-- VISTA 1: LISTA MOVIMENTI -->
     <div id="view-movimenti" class="space-y-3">
-      <div class="grid grid-cols-2 gap-2">
+      <div class="grid grid-cols-2 gap-2 no-print">
         <div class="relative col-span-2">
           <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
           <input type="text" id="search-input" oninput="renderItems()" placeholder="Cerca descrizione, note, categoria..." class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
@@ -88,7 +114,7 @@
 
     <!-- VISTA 2: REPORT DETTAGLIATO E FINE ANNO -->
     <div id="view-report" class="space-y-4 hidden">
-      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-2">
+      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-2 no-print">
         <div class="flex items-center space-x-2">
           <label class="text-xs text-slate-400 font-medium">Periodo:</label>
           <select id="report-mode" onchange="toggleReportMode()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs px-2 py-1.5 rounded-lg">
@@ -96,10 +122,20 @@
             <option value="mese">Mese Specifico</option>
           </select>
         </div>
-        <div>
+        <div class="flex items-center space-x-2">
           <input type="number" id="report-year" onchange="renderReport()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs px-2 py-1.5 rounded-lg w-20" placeholder="Anno">
           <input type="month" id="report-month" onchange="renderReport()" class="bg-slate-950 border border-slate-800 text-slate-200 text-xs px-2 py-1.5 rounded-lg hidden">
+          <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-1">
+            <i class="fa-solid fa-print"></i>
+            <span>Stampa Report</span>
+          </button>
         </div>
+      </div>
+
+      <!-- Intestazione visibile solo in stampa -->
+      <div class="hidden print:block mb-4 border-b border-black pb-2">
+        <h1 class="text-xl font-bold">PROSPETTO FINANZIARIO - LIFE 4.0</h1>
+        <p id="print-report-period" class="text-sm text-gray-600"></p>
       </div>
 
       <div id="report-cards-container" class="space-y-4"></div>
@@ -107,7 +143,7 @@
       <div class="bg-gradient-to-r from-indigo-900/40 to-slate-900 border border-indigo-500/30 p-4 rounded-2xl flex items-center justify-between">
         <div>
           <p class="text-xs text-indigo-300 font-semibold">RISULTATO GLOBALE PERIODO</p>
-          <p class="text-[10px] text-slate-400">Somma netta di tutte le Aziende + Famiglia</p>
+          <p class="text-[10px] text-slate-400 print:text-gray-600">Somma netta di tutte le Aziende + Famiglia</p>
         </div>
         <div class="text-right">
           <p id="report-total-net" class="text-lg font-bold text-emerald-400">€ 0.00</p>
@@ -115,74 +151,79 @@
       </div>
     </div>
 
-    <!-- VISTA 3: SCADENZE -->
-    <div id="view-scadenze" class="space-y-3 hidden">
-      <div id="scadenze-container" class="space-y-2.5"></div>
+    <!-- VISTA 3: SCADENZE & DOCUMENTI -->
+    <div id="view-scadenze" class="space-y-4 hidden">
+      <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-3 rounded-xl no-print">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-id-card text-indigo-400 text-sm"></i>
+          <span class="text-xs font-semibold text-slate-200">Archivio Documenti & Scadenze</span>
+        </div>
+        <div class="flex space-x-2">
+          <button onclick="openModal('documento')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-2.5 py-1.5 rounded-lg font-medium flex items-center space-x-1">
+            <i class="fa-solid fa-plus"></i>
+            <span>Aggiungi Documento</span>
+          </button>
+          <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-1">
+            <i class="fa-solid fa-print"></i>
+            <span>Stampa Scadenze</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Intestazione Stampa Scadenze -->
+      <div class="hidden print:block mb-4 border-b border-black pb-2">
+        <h1 class="text-xl font-bold">ARCHIVIO DOCUMENTI & SCADENZE</h1>
+        <p class="text-sm text-gray-600">Report generato il: <span id="print-date"></span></p>
+      </div>
+
+      <div id="scadenze-container" class="space-y-3"></div>
     </div>
 
   </main>
 
   <!-- MODALE PERSONALIZZAZIONE ATTIVITÀ -->
-  <div id="activities-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <div id="activities-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-bold text-base text-slate-100"><i class="fa-solid fa-pen-to-square text-indigo-400 mr-2"></i>Personalizza Nomi Attività</h3>
         <button onclick="closeActivitiesModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
-      <p class="text-xs text-slate-400">Assegna un nome personalizzato alle tue aziende o conti per riconoscerli subito nei report.</p>
+      <p class="text-xs text-slate-400">Assegna un nome personalizzato alle tue aziende o conti.</p>
       <form onsubmit="saveCustomActivities(event)" class="space-y-2.5 text-xs">
-        <div>
-          <label class="text-slate-400 block mb-1 font-medium">Conto Personale / Casa</label>
-          <input type="text" id="act-name-0" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-200 outline-none">
-        </div>
-        <div>
-          <label class="text-slate-400 block mb-1 font-medium">Attività 1</label>
-          <input type="text" id="act-name-1" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-200 outline-none">
-        </div>
-        <div>
-          <label class="text-slate-400 block mb-1 font-medium">Attività 2</label>
-          <input type="text" id="act-name-2" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-200 outline-none">
-        </div>
-        <div>
-          <label class="text-slate-400 block mb-1 font-medium">Attività 3</label>
-          <input type="text" id="act-name-3" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-200 outline-none">
-        </div>
-        <div>
-          <label class="text-slate-400 block mb-1 font-medium">Attività 4</label>
-          <input type="text" id="act-name-4" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-200 outline-none">
-        </div>
-        <div>
-          <label class="text-slate-400 block mb-1 font-medium">Attività 5</label>
-          <input type="text" id="act-name-5" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-200 outline-none">
-        </div>
+        <div><label class="text-slate-400 block mb-1">Conto 1 (Casa/Famiglia)</label><input type="text" id="act-name-0" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-200"></div>
+        <div><label class="text-slate-400 block mb-1">Attività 2</label><input type="text" id="act-name-1" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-200"></div>
+        <div><label class="text-slate-400 block mb-1">Attività 3</label><input type="text" id="act-name-2" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-200"></div>
+        <div><label class="text-slate-400 block mb-1">Attività 4</label><input type="text" id="act-name-3" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-200"></div>
+        <div><label class="text-slate-400 block mb-1">Attività 5</label><input type="text" id="act-name-4" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-200"></div>
+        <div><label class="text-slate-400 block mb-1">Attività 6</label><input type="text" id="act-name-5" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-200"></div>
         <div class="pt-2 flex space-x-2">
           <button type="button" onclick="closeActivitiesModal()" class="flex-1 bg-slate-800 text-slate-300 py-2.5 rounded-xl font-medium">Annulla</button>
-          <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl font-medium shadow-lg shadow-indigo-600/30">Salva Nomi</button>
+          <button type="submit" class="flex-1 bg-indigo-600 text-white py-2.5 rounded-xl font-medium">Salva Nomi</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODALE INSERIMENTO MOVIMENTO -->
-  <div id="item-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+  <!-- MODALE INSERIMENTO MOVIMENTO / DOCUMENTO -->
+  <div id="item-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden no-print">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-t-2xl sm:rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 id="modal-title" class="font-bold text-base text-slate-100">Nuovo Movimento</h3>
+        <h3 id="modal-title" class="font-bold text-base text-slate-100">Nuovo Inserimento</h3>
         <button onclick="closeModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
       <form id="item-form" onsubmit="saveItem(event)" class="space-y-3.5 text-xs">
         <input type="hidden" id="item-id">
+        <input type="hidden" id="item-attachment-base64">
         
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-slate-400 mb-1 font-medium">Tipologia</label>
-            <select id="item-type" onchange="updateCategoryDropdown()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
+            <select id="item-type" onchange="handleTypeChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
               <option value="uscita">Spesa / Uscita (-)</option>
               <option value="entrata">Incasso / Entrata (+)</option>
-              <option value="scadenza">Scadenza Documento</option>
+              <option value="documento">Documento / Scadenza</option>
               <option value="abbonamento">Abbonamento Ricorrente (-)</option>
-              <option value="garanzia">Garanzia Prodotto</option>
             </select>
           </div>
           <div>
@@ -191,30 +232,49 @@
           </div>
         </div>
 
-        <div>
-          <label class="block text-slate-400 mb-1 font-medium">Categoria Spesa / Entrata</label>
+        <div id="group-category">
+          <label class="block text-slate-400 mb-1 font-medium">Categoria</label>
           <select id="item-category" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none"></select>
         </div>
 
         <div>
-          <label class="block text-slate-400 mb-1 font-medium">Descrizione / Nome</label>
-          <input type="text" id="item-name" required placeholder="es. Bolletta luce, Fattura #42, Cena lavoro" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
+          <label id="label-name" class="block text-slate-400 mb-1 font-medium">Descrizione / Nome Documento</label>
+          <input type="text" id="item-name" required placeholder="es. Patente Guida, Bolletta Luce, Fattura #42" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
+        </div>
+
+        <!-- CAMPI SPECIFICI PER DOCUMENTI & SCADENZE -->
+        <div id="group-document-fields" class="space-y-3 hidden border-t border-b border-slate-800/80 py-3 bg-slate-950/40 p-3 rounded-xl">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-indigo-300 mb-1 font-medium">N. Documento / Codice</label>
+              <input type="text" id="item-doc-num" placeholder="es. U1234567X" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
+            </div>
+            <div>
+              <label class="block text-indigo-300 mb-1 font-medium">Avvisami (gg prima)</label>
+              <input type="number" id="item-alert-days" value="30" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
+            </div>
+          </div>
+          <div>
+            <label class="block text-indigo-300 mb-1 font-medium">Allegato / Foto Documento</label>
+            <input type="file" id="item-file-input" accept="image/*,application/pdf" onchange="convertFileToBase64(event)" class="w-full bg-slate-950 text-slate-400 rounded-xl p-2 border border-slate-800 text-[11px]">
+            <p id="file-status" class="text-[10px] text-emerald-400 mt-1 hidden">✓ Foto caricata pronto per il salvataggio</p>
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-slate-400 mb-1 font-medium">Data</label>
+            <label id="label-date" class="block text-slate-400 mb-1 font-medium">Data Movimento / Scadenza</label>
             <input type="date" id="item-date" required class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
           </div>
-          <div>
+          <div id="group-amount">
             <label class="block text-slate-400 mb-1 font-medium">Importo (€)</label>
-            <input type="number" step="0.01" id="item-amount" required placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
+            <input type="number" step="0.01" id="item-amount" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none">
           </div>
         </div>
 
         <div>
-          <label class="block text-slate-400 mb-1 font-medium">Note aggiuntive</label>
-          <textarea id="item-notes" rows="2" placeholder="Dettagli fornitore, n. documento..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none"></textarea>
+          <label class="block text-slate-400 mb-1 font-medium">Note / Dettagli</label>
+          <textarea id="item-notes" rows="2" placeholder="Note aggiuntive, ente emittente..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-slate-200 outline-none"></textarea>
         </div>
 
         <div class="pt-2 flex space-x-2">
@@ -236,7 +296,6 @@
 
     let db = null;
     let itemsList = [];
-    
     let activityNames = ["Casa / Famiglia", "Attività 1", "Attività 2", "Attività 3", "Attività 4", "Attività 5"];
 
     const CATEGORIES_USCITE = [
@@ -249,6 +308,11 @@
     const CATEGORIES_ENTRATE = [
       "Incasso Clienti / Vendite", "Stipendio / Compensi", "Affitti Attivi / Rendite",
       "Rimborsi & Sussidi", "Altro Entrata"
+    ];
+
+    const CATEGORIES_DOCUMENTI = [
+      "Patente & Guida", "Carta d'Identità & Passaporto", "Assicurazione & Polizza",
+      "Bollo & Veicoli", "Garanzia Prodotto", "Contratto & Affitto", "Certificato & Documento"
     ];
 
     const LOCAL_KEY = 'life40_hub_data';
@@ -265,7 +329,6 @@
     function populateActivityDropdowns() {
       const modalSelect = document.getElementById('item-activity');
       const filterSelect = document.getElementById('filter-activity');
-      
       const currentFilter = filterSelect.value;
       modalSelect.innerHTML = '';
       filterSelect.innerHTML = '<option value="tutti">Tutte le Attività</option>';
@@ -279,35 +342,88 @@
         opt2.value = act; opt2.innerText = act;
         filterSelect.appendChild(opt2);
       });
-
       filterSelect.value = currentFilter;
     }
 
     function populateCategoryDropdowns() {
       const filterCat = document.getElementById('filter-category');
       filterCat.innerHTML = '<option value="tutti">Tutte le Categorie</option>';
-      
-      const allCats = [...CATEGORIES_USCITE, ...CATEGORIES_ENTRATE];
+      const allCats = [...CATEGORIES_USCITE, ...CATEGORIES_ENTRATE, ...CATEGORIES_DOCUMENTI];
       allCats.forEach(cat => {
         const opt = document.createElement('option');
         opt.value = cat; opt.innerText = cat;
         filterCat.appendChild(opt);
       });
-
-      updateCategoryDropdown();
+      handleTypeChange();
     }
 
-    function updateCategoryDropdown() {
+    function handleTypeChange() {
       const type = document.getElementById('item-type').value;
       const catSelect = document.getElementById('item-category');
-      catSelect.innerHTML = '';
+      const docGroup = document.getElementById('group-document-fields');
+      const dateLabel = document.getElementById('label-date');
+      const nameLabel = document.getElementById('label-name');
 
-      const list = (type === 'entrata') ? CATEGORIES_ENTRATE : CATEGORIES_USCITE;
+      catSelect.innerHTML = '';
+      let list = CATEGORIES_USCITE;
+
+      if (type === 'entrata') {
+        list = CATEGORIES_ENTRATE;
+        docGroup.classList.add('hidden');
+        dateLabel.innerText = 'Data Incasso';
+        nameLabel.innerText = 'Descrizione / Cliente';
+      } else if (type === 'documento') {
+        list = CATEGORIES_DOCUMENTI;
+        docGroup.classList.remove('hidden');
+        dateLabel.innerText = 'Data Scadenza Documento';
+        nameLabel.innerText = 'Nome Documento (es. Patente Mario)';
+      } else {
+        list = CATEGORIES_USCITE;
+        docGroup.classList.add('hidden');
+        dateLabel.innerText = 'Data Spesa';
+        nameLabel.innerText = 'Descrizione Spesa';
+      }
+
       list.forEach(cat => {
         const opt = document.createElement('option');
         opt.value = cat; opt.innerText = cat;
         catSelect.appendChild(opt);
       });
+    }
+
+    function convertFileToBase64(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 1500000) {
+        alert("La foto o file è troppo grande! Carica un'immagine inferiore a 1.5MB.");
+        e.target.value = '';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        document.getElementById('item-attachment-base64').value = event.target.result;
+        document.getElementById('file-status').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function getExpirationStatus(expDateStr, alertDays = 30) {
+      if (!expDateStr) return { status: 'none', label: 'Nessuna Data', badgeClass: 'bg-slate-800 text-slate-400' };
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const expDate = new Date(expDateStr);
+      expDate.setHours(0,0,0,0);
+
+      const diffTime = expDate - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays < 0) {
+        return { status: 'expired', days: Math.abs(diffDays), label: `🔴 SCADUTO DA ${Math.abs(diffDays)} GG`, badgeClass: 'bg-red-500/20 text-red-400 border border-red-500/40 font-bold' };
+      } else if (diffDays <= alertDays) {
+        return { status: 'warning', days: diffDays, label: `🟠 IN SCADENZA (${diffDays} gg rimasti)`, badgeClass: 'bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold' };
+      } else {
+        return { status: 'valid', days: diffDays, label: `🟢 VALIDO (${diffDays} gg rimasti)`, badgeClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' };
+      }
     }
 
     function initFirebase() {
@@ -322,6 +438,7 @@
             populateActivityDropdowns();
             renderItems();
             renderReport();
+            renderScadenze();
           }
         });
         
@@ -331,6 +448,7 @@
           localStorage.setItem(LOCAL_KEY, JSON.stringify(itemsList));
           renderItems();
           renderReport();
+          renderScadenze();
           updateDashboardMetrics();
         });
         return true;
@@ -348,6 +466,7 @@
         itemsList = local ? JSON.parse(local) : [];
         renderItems();
         renderReport();
+        renderScadenze();
         updateDashboardMetrics();
       }
     }
@@ -361,8 +480,11 @@
         category: document.getElementById('item-category').value,
         name: document.getElementById('item-name').value,
         date: document.getElementById('item-date').value,
-        amount: document.getElementById('item-amount').value,
-        notes: document.getElementById('item-notes').value
+        amount: document.getElementById('item-amount').value || "0",
+        notes: document.getElementById('item-notes').value || "",
+        docNum: document.getElementById('item-doc-num').value || "",
+        alertDays: parseInt(document.getElementById('item-alert-days').value) || 30,
+        attachment: document.getElementById('item-attachment-base64').value || ""
       };
 
       if (db) {
@@ -374,6 +496,7 @@
         localStorage.setItem(LOCAL_KEY, JSON.stringify(itemsList));
         renderItems();
         renderReport();
+        renderScadenze();
         updateDashboardMetrics();
       }
       closeModal();
@@ -385,36 +508,9 @@
         else {
           itemsList = itemsList.filter(i => i.id !== id);
           localStorage.setItem(LOCAL_KEY, JSON.stringify(itemsList));
-          renderItems(); renderReport(); updateDashboardMetrics();
+          renderItems(); renderReport(); renderScadenze(); updateDashboardMetrics();
         }
       }
-    }
-
-    function openActivitiesModal() {
-      activityNames.forEach((name, i) => {
-        const input = document.getElementById(`act-name-${i}`);
-        if(input) input.value = name;
-      });
-      document.getElementById('activities-modal').classList.remove('hidden');
-    }
-
-    function closeActivitiesModal() {
-      document.getElementById('activities-modal').classList.add('hidden');
-    }
-
-    async function saveCustomActivities(e) {
-      e.preventDefault();
-      for (let i = 0; i < 6; i++) {
-        activityNames[i] = document.getElementById(`act-name-${i}`).value.trim() || `Attività ${i}`;
-      }
-      localStorage.setItem(ACT_KEY, JSON.stringify(activityNames));
-      if (db) {
-        await db.collection('life40_settings').doc('activities').set({ names: activityNames });
-      }
-      populateActivityDropdowns();
-      closeActivitiesModal();
-      renderItems();
-      renderReport();
     }
 
     function renderItems() {
@@ -422,10 +518,7 @@
       const selectedActivity = document.getElementById('filter-activity').value;
       const selectedCat = document.getElementById('filter-category').value;
       const container = document.getElementById('items-container');
-      const scadContainer = document.getElementById('scadenze-container');
-      
       container.innerHTML = '';
-      scadContainer.innerHTML = '';
 
       const filtered = itemsList.filter(item => {
         const matchesSearch = item.name.toLowerCase().includes(searchQuery) || 
@@ -433,12 +526,11 @@
                               (item.category && item.category.toLowerCase().includes(searchQuery));
         const matchesActivity = selectedActivity === 'tutti' || item.activity === selectedActivity;
         const matchesCat = selectedCat === 'tutti' || item.category === selectedCat;
-        return matchesSearch && matchesActivity && matchesCat;
+        return matchesSearch && matchesActivity && matchesCat && item.type !== 'documento';
       });
 
       if (filtered.length === 0) {
         container.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs">Nessun movimento trovato.</div>`;
-        scadContainer.innerHTML = container.innerHTML;
         return;
       }
 
@@ -447,7 +539,6 @@
       filtered.forEach(item => {
         const isIncome = item.type === 'entrata';
         const isExpense = item.type === 'uscita' || item.type === 'abbonamento';
-        const isDoc = item.type === 'scadenza' || item.type === 'garanzia';
 
         const card = document.createElement('div');
         card.className = 'bg-slate-900 border border-slate-800 p-3 rounded-2xl flex flex-col space-y-2';
@@ -463,19 +554,87 @@
             </div>
             <div class="text-right">
               <p class="font-bold text-xs ${isIncome ? 'text-emerald-400' : (isExpense ? 'text-red-400' : 'text-slate-300')}">
-                ${isIncome ? '+' : (isExpense ? '-' : '')} € ${parseFloat(item.amount || 0).toFixed(2)}
+                ${isIncome ? '+' : '-'} € ${parseFloat(item.amount || 0).toFixed(2)}
               </p>
             </div>
           </div>
           ${item.notes ? `<p class="text-[11px] text-slate-400 bg-slate-950/50 p-2 rounded-xl border border-slate-800/50">${escapeHtml(item.notes)}</p>` : ''}
-          <div class="flex justify-end space-x-3 pt-1 border-t border-slate-800/40 text-[11px] text-slate-400">
+          <div class="flex justify-end space-x-3 pt-1 border-t border-slate-800/40 text-[11px] text-slate-400 no-print">
             <button onclick="editItem('${item.id}')" class="hover:text-indigo-400"><i class="fa-solid fa-pen"></i></button>
             <button onclick="deleteItem('${item.id}')" class="hover:text-red-400"><i class="fa-solid fa-trash"></i></button>
           </div>
         `;
         container.appendChild(card);
-        if (isDoc) scadContainer.appendChild(card.cloneNode(true));
       });
+    }
+
+    function renderScadenze() {
+      const container = document.getElementById('scadenze-container');
+      const alertBar = document.getElementById('alert-scadenze-bar');
+      const alertText = document.getElementById('alert-scadenze-text');
+      const scadenzeBadge = document.getElementById('scadenze-badge');
+      container.innerHTML = '';
+
+      const docs = itemsList.filter(i => i.type === 'documento' || i.type === 'scadenza');
+      let criticalCount = 0;
+
+      if (docs.length === 0) {
+        container.innerHTML = `<div class="text-center py-10 text-slate-500 text-xs">Nessun documento o scadenza presente. Clicca su "+ Aggiungi Documento" per inserire Patente, C.I., Polizze...</div>`;
+        alertBar.classList.add('hidden');
+        scadenzeBadge.classList.add('hidden');
+        return;
+      }
+
+      docs.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      docs.forEach(doc => {
+        const expInfo = getExpirationStatus(doc.date, doc.alertDays || 30);
+        if (expInfo.status === 'expired' || expInfo.status === 'warning') criticalCount++;
+
+        const card = document.createElement('div');
+        card.className = 'bg-slate-900 border border-slate-800 p-3.5 rounded-2xl space-y-2.5 print:bg-white print:border-gray-300';
+        card.innerHTML = `
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="flex items-center space-x-2">
+                <span class="text-xs px-2 py-0.5 rounded-md ${expInfo.badgeClass}">${expInfo.label}</span>
+                <span class="bg-indigo-950 text-indigo-300 border border-indigo-800/50 text-[10px] px-2 py-0.5 rounded-md">${escapeHtml(doc.activity || activityNames[0])}</span>
+              </div>
+              <h4 class="font-bold text-sm text-slate-100 print:text-black mt-1.5">${escapeHtml(doc.name)}</h4>
+              <p class="text-xs text-slate-400 print:text-gray-600">${escapeHtml(doc.category)} ${doc.docNum ? `• N. <strong>${escapeHtml(doc.docNum)}</strong>` : ''}</p>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] text-slate-400 block">Scadenza:</span>
+              <span class="text-xs font-bold text-slate-200 print:text-black">${formatDate(doc.date)}</span>
+            </div>
+          </div>
+          ${doc.notes ? `<p class="text-[11px] text-slate-300 bg-slate-950/60 p-2 rounded-xl border border-slate-800/50 print:bg-gray-100 print:text-black">${escapeHtml(doc.notes)}</p>` : ''}
+          ${doc.attachment ? `
+            <div class="pt-1">
+              <a href="${doc.attachment}" target="_blank" download="Documento_${escapeHtml(doc.name)}" class="no-print inline-flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700">
+                <i class="fa-solid fa-file-arrow-down"></i>
+                <span>Visualizza / Scarica Allegato Foto</span>
+              </a>
+            </div>
+          ` : ''}
+          <div class="flex justify-end space-x-3 pt-1 border-t border-slate-800/40 text-[11px] text-slate-400 no-print">
+            <button onclick="editItem('${doc.id}')" class="hover:text-indigo-400"><i class="fa-solid fa-pen"></i> Modifica</button>
+            <button onclick="deleteItem('${doc.id}')" class="hover:text-red-400"><i class="fa-solid fa-trash"></i> Elimina</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      if (criticalCount > 0) {
+        alertBar.classList.remove('hidden');
+        scadenzeBadge.classList.remove('hidden');
+        alertText.innerText = `Attenzione: Ci sono ${criticalCount} documenti scaduti o in scadenza imminente!`;
+      } else {
+        alertBar.classList.add('hidden');
+        scadenzeBadge.classList.add('hidden');
+      }
+
+      document.getElementById('print-date').innerText = new Date().toLocaleDateString('it-IT');
     }
 
     function toggleReportMode() {
@@ -496,20 +655,26 @@
       container.innerHTML = '';
 
       let filterFn = () => true;
+      let periodTitle = '';
+
       if (mode === 'anno') {
         const year = document.getElementById('report-year').value;
         if (!year) return;
         filterFn = (i) => i.date && i.date.startsWith(year);
+        periodTitle = `Anno Completo: ${year}`;
       } else {
         const month = document.getElementById('report-month').value;
         if (!month) return;
         filterFn = (i) => i.date && i.date.substring(0, 7) === month;
+        periodTitle = `Mese: ${month}`;
       }
+
+      document.getElementById('print-report-period').innerText = periodTitle;
 
       let grandTotalNet = 0;
 
       activityNames.forEach(act => {
-        const actItems = itemsList.filter(i => (i.activity === act || (!i.activity && act === activityNames[0])) && filterFn(i));
+        const actItems = itemsList.filter(i => (i.activity === act || (!i.activity && act === activityNames[0])) && filterFn(i) && i.type !== 'documento');
         const entrate = actItems.filter(i => i.type === 'entrata').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
         const uscite = actItems.filter(i => i.type === 'uscita' || i.type === 'abbonamento').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
         const saldo = entrate - uscite;
@@ -529,32 +694,32 @@
           const cEntrate = catTotals[cat].entrate;
           const cUscite = catTotals[cat].uscite;
           catRowsHtml += `
-            <div class="flex justify-between items-center text-[11px] py-1 border-b border-slate-800/40">
-              <span class="text-slate-300">${cat}</span>
+            <div class="flex justify-between items-center text-[11px] py-1 border-b border-slate-800/40 print:border-gray-200">
+              <span class="text-slate-300 print:text-black font-medium">${cat}</span>
               <div class="space-x-2">
-                ${cEntrate > 0 ? `<span class="text-emerald-400">+€${cEntrate.toFixed(2)}</span>` : ''}
-                ${cUscite > 0 ? `<span class="text-red-400">-€${cUscite.toFixed(2)}</span>` : ''}
+                ${cEntrate > 0 ? `<span class="text-emerald-400 font-bold">+€ ${cEntrate.toFixed(2)}</span>` : ''}
+                ${cUscite > 0 ? `<span class="text-red-400 font-bold">-€ ${cUscite.toFixed(2)}</span>` : ''}
               </div>
             </div>
           `;
         });
 
         const card = document.createElement('div');
-        card.className = 'bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3';
+        card.className = 'bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 print:bg-white print:border-gray-300';
         card.innerHTML = `
           <div class="flex justify-between items-center">
-            <h4 class="font-bold text-sm text-indigo-300">${act}</h4>
-            <span class="text-[10px] px-2 py-0.5 rounded-full ${saldo >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'} font-semibold">${saldo >= 0 ? 'Utile / Attivo' : 'Perdita / Disavanzo'}</span>
+            <h4 class="font-bold text-sm text-indigo-300 print:text-black">${act}</h4>
+            <span class="text-[10px] px-2 py-0.5 rounded-full ${saldo >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'} font-semibold print:border print:border-gray-400">${saldo >= 0 ? 'Utile / Attivo' : 'Perdita / Disavanzo'}</span>
           </div>
           <div class="grid grid-cols-3 gap-2 text-center pt-1">
-            <div class="bg-slate-950/50 p-2 rounded-xl"><span class="text-[9px] text-slate-400 block">Totale Incassi</span><span class="text-xs font-semibold text-emerald-400">+ € ${entrate.toFixed(2)}</span></div>
-            <div class="bg-slate-950/50 p-2 rounded-xl"><span class="text-[9px] text-slate-400 block">Totale Spese</span><span class="text-xs font-semibold text-red-400">- € ${uscite.toFixed(2)}</span></div>
-            <div class="bg-slate-950/50 p-2 rounded-xl"><span class="text-[9px] text-slate-400 block">Risultato Netto</span><span class="text-xs font-bold ${saldo >= 0 ? 'text-indigo-400' : 'text-red-400'}">€ ${saldo.toFixed(2)}</span></div>
+            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Totale Incassi</span><span class="text-xs font-semibold text-emerald-400">+ € ${entrate.toFixed(2)}</span></div>
+            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Totale Spese</span><span class="text-xs font-semibold text-red-400">- € ${uscite.toFixed(2)}</span></div>
+            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Risultato Netto</span><span class="text-xs font-bold ${saldo >= 0 ? 'text-indigo-400' : 'text-red-400'}">€ ${saldo.toFixed(2)}</span></div>
           </div>
           ${catRowsHtml ? `<div class="pt-2">
-            <p class="text-[10px] text-slate-400 font-semibold mb-1">Dettaglio Categorie:</p>
-            <div class="bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/40">${catRowsHtml}</div>
-          </div>` : '<p class="text-[10px] text-slate-500 italic">Nessun movimento nel periodo selezionato.</p>'}
+            <p class="text-[10px] text-slate-400 print:text-gray-600 font-semibold mb-1">Dettaglio Categorie Voci:</p>
+            <div class="bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/40 print:bg-white print:border-gray-200">${catRowsHtml}</div>
+          </div>` : '<p class="text-[10px] text-slate-500 italic">Nessun movimento registrato nel periodo.</p>'}
         `;
         container.appendChild(card);
       });
@@ -567,7 +732,7 @@
     function updateDashboardMetrics() {
       const now = new Date();
       const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      const currentMonthItems = itemsList.filter(i => i.date && i.date.substring(0, 7) === currentMonthStr);
+      const currentMonthItems = itemsList.filter(i => i.date && i.date.substring(0, 7) === currentMonthStr && i.type !== 'documento');
 
       const entrate = currentMonthItems.filter(i => i.type === 'entrata').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
       const uscite = currentMonthItems.filter(i => i.type === 'uscita' || i.type === 'abbonamento').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
@@ -578,31 +743,70 @@
       document.getElementById('dash-saldo').innerText = `€ ${saldo.toFixed(2)}`;
     }
 
-    function openModal(editId = null) {
+    function openModal(forceType = null) {
       document.getElementById('item-form').reset();
       document.getElementById('item-id').value = '';
+      document.getElementById('item-attachment-base64').value = '';
+      document.getElementById('file-status').classList.add('hidden');
       document.getElementById('item-date').value = new Date().toISOString().split('T')[0];
-      updateCategoryDropdown();
 
-      if (editId) {
-        const item = itemsList.find(i => i.id === editId);
-        if (item) {
-          document.getElementById('item-id').value = item.id;
-          document.getElementById('item-type').value = item.type;
-          updateCategoryDropdown();
-          document.getElementById('item-activity').value = item.activity || activityNames[0];
-          document.getElementById('item-category').value = item.category || CATEGORIES_USCITE[0];
-          document.getElementById('item-name').value = item.name;
-          document.getElementById('item-date').value = item.date;
-          document.getElementById('item-amount').value = item.amount;
-          document.getElementById('item-notes').value = item.notes || '';
-        }
+      if (forceType) {
+        document.getElementById('item-type').value = forceType;
       }
+      handleTypeChange();
       document.getElementById('item-modal').classList.remove('hidden');
     }
 
+    function openActivitiesModal() {
+      activityNames.forEach((name, i) => {
+        const input = document.getElementById(`act-name-${i}`);
+        if(input) input.value = name;
+      });
+      document.getElementById('activities-modal').classList.remove('hidden');
+    }
+
+    function closeActivitiesModal() { document.getElementById('activities-modal').classList.add('hidden'); }
     function closeModal() { document.getElementById('item-modal').classList.add('hidden'); }
-    function editItem(id) { openModal(id); }
+
+    async function saveCustomActivities(e) {
+      e.preventDefault();
+      for (let i = 0; i < 6; i++) {
+        activityNames[i] = document.getElementById(`act-name-${i}`).value.trim() || `Attività ${i+1}`;
+      }
+      localStorage.setItem(ACT_KEY, JSON.stringify(activityNames));
+      if (db) await db.collection('life40_settings').doc('activities').set({ names: activityNames });
+      populateActivityDropdowns();
+      closeActivitiesModal();
+      renderItems();
+      renderReport();
+      renderScadenze();
+    }
+
+    function editItem(id) {
+      const item = itemsList.find(i => i.id === id);
+      if (!item) return;
+      document.getElementById('item-id').value = item.id;
+      document.getElementById('item-type').value = item.type || 'uscita';
+      handleTypeChange();
+      
+      document.getElementById('item-activity').value = item.activity || activityNames[0];
+      document.getElementById('item-category').value = item.category || CATEGORIES_USCITE[0];
+      document.getElementById('item-name').value = item.name;
+      document.getElementById('item-date').value = item.date;
+      document.getElementById('item-amount').value = item.amount || '';
+      document.getElementById('item-notes').value = item.notes || '';
+      document.getElementById('item-doc-num').value = item.docNum || '';
+      document.getElementById('item-alert-days').value = item.alertDays || 30;
+      document.getElementById('item-attachment-base64').value = item.attachment || '';
+
+      if (item.attachment) {
+        document.getElementById('file-status').classList.remove('hidden');
+      } else {
+        document.getElementById('file-status').classList.add('hidden');
+      }
+
+      document.getElementById('item-modal').classList.remove('hidden');
+    }
 
     function switchTab(view) {
       ['movimenti', 'report', 'scadenze'].forEach(v => {
@@ -612,6 +816,7 @@
       document.getElementById(`view-${view}`).classList.remove('hidden');
       document.getElementById(`tab-${view}`).classList.add('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
       if (view === 'report') renderReport();
+      if (view === 'scadenze') renderScadenze();
     }
 
     function formatDate(d) { if(!d) return ''; const [y, m, day] = d.split('-'); return `${day}/${m}/${y}`; }
