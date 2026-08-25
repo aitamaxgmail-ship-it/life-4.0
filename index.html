@@ -486,7 +486,6 @@
       <div id="day-modal-records" class="space-y-2 pt-1"></div>
     </div>
   </div>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDDff4Lkf6usNIgFlUcETsS4Fwnm200C7g",
@@ -509,6 +508,23 @@
     let selectedCalDayStr = '';
     let activityNames = ["Casa / Famiglia", "Attività 1", "Attività 2", "Attività 3", "Attività 4", "Attività 5"];
     
+    // Funzioni Utilità Generali
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      return dateStr;
+    }
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     const ACTIVITY_THEMES = [
       { bg: 'bg-indigo-950/30', border: 'border-indigo-500/40', text: 'text-indigo-400', badge: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', headerBg: 'bg-indigo-900/30' },
       { bg: 'bg-emerald-950/30', border: 'border-emerald-500/40', text: 'text-emerald-400', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', headerBg: 'bg-emerald-900/30' },
@@ -543,6 +559,7 @@
     const LOCAL_DIP_KEY = 'life40_dipendenti_data';
     const LOCAL_PRES_KEY = 'life40_presenze_data';
     const LOCAL_ACC_KEY = 'life40_acconti_data';
+
     function openProfileModal() {
       document.getElementById('profile-input-code').value = currentProfileCode || '';
       const closeBtn = document.getElementById('btn-close-profile-modal');
@@ -725,6 +742,7 @@
           localStorage.setItem(LOCAL_PRES_KEY + '_' + currentProfileCode, JSON.stringify(presenzeList));
           renderCalendar();
           renderReport();
+          updateDashboardMetrics();
         });
         unsubscribes.push(u4);
         const u5 = profileRef.collection('acconti').onSnapshot(snapshot => {
@@ -733,6 +751,7 @@
           localStorage.setItem(LOCAL_ACC_KEY + '_' + currentProfileCode, JSON.stringify(accontiList));
           renderCalendar();
           renderReport();
+          updateDashboardMetrics();
         });
         unsubscribes.push(u5);
         return true;
@@ -1302,6 +1321,7 @@
         localStorage.setItem(LOCAL_PRES_KEY + '_' + currentProfileCode, JSON.stringify(presenzeList));
         renderCalendar();
         renderReport();
+        updateDashboardMetrics();
       }
       closeDayModal();
     }
@@ -1331,12 +1351,14 @@
         localStorage.setItem(LOCAL_ACC_KEY + '_' + currentProfileCode, JSON.stringify(accontiList));
         renderCalendar();
         renderReport();
+        updateDashboardMetrics();
       }
       document.getElementById('day-acconto-amount').value = '';
       document.getElementById('day-acconto-notes').value = '';
       renderDayRecords();
       renderCalendar();
       renderReport();
+      updateDashboardMetrics();
     }
     async function deleteAcconto(accId) {
       if (confirm("Vuoi cancellare questo acconto?")) {
@@ -1347,6 +1369,7 @@
           localStorage.setItem(LOCAL_ACC_KEY + '_' + currentProfileCode, JSON.stringify(accontiList));
           renderCalendar();
           renderReport();
+          updateDashboardMetrics();
         }
         renderDayRecords();
       }
@@ -1579,31 +1602,25 @@
       });
       document.getElementById(`view-${view}`).classList.remove('hidden');
       document.getElementById(`tab-${view}`).classList.add('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
-      if (view === 'report') renderReport();
-      if (view === 'scadenze') renderScadenze();
-      if (view === 'presenze') renderPresenzeView();
-    }
-    function formatDate(d) { 
-      if (!d) return '';
-      const parts = d.split('-');
-      if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
-      return d;
-    }
-    function escapeHtml(str) {
-      if (str === null || str === undefined) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const yearInput = document.getElementById('report-year');
-      if (yearInput && !yearInput.value) {
-        yearInput.value = new Date().getFullYear();
+    // Inizializzazione applicazione al caricamento
+    window.addEventListener('DOMContentLoaded', () => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      
+      const reportYearEl = document.getElementById('report-year');
+      if (reportYearEl) reportYearEl.value = year;
+      
+      const reportMonthEl = document.getElementById('report-month');
+      if (reportMonthEl) reportMonthEl.value = `${year}-${month}`;
+
+      if (currentProfileCode) {
+        const displayEl = document.getElementById('current-profile-display');
+        if (displayEl) displayEl.innerText = currentProfileCode;
       }
+      
       loadInitialData();
     });
   </script>
