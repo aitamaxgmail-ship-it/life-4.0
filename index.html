@@ -33,13 +33,9 @@
       .text-slate-100, .text-slate-200, .text-slate-300, .text-slate-400, .text-indigo-300, .text-indigo-400 { color: black !important; }
       .text-emerald-400 { color: #059669 !important; }
       .text-red-400 { color: #dc2626 !important; }
-      .text-cyan-400 { color: #0891b2 !important; }
       .border-slate-800, .border-slate-700 { border-color: #eee !important; }
       .shadow-lg, .shadow-md, .backdrop-blur { box-shadow: none !important; filter: none !important; }
-      .bg-emerald-500\/20 { background-color: #d1fae5 !important; color: #065f46 !important; border: 1px solid #a7f3d0 !important; }
-      .bg-rose-500\/20 { background-color: #ffe4e6 !important; color: #9f1239 !important; border: 1px solid #fecdd3 !important; }
-      .bg-amber-500\/20 { background-color: #fef3c7 !important; color: #92400e !important; border: 1px solid #fde68a !important; }
-      .bg-cyan-500\/20 { background-color: #cffaff !important; color: #155e75 !important; border: 1px solid #a5f3fc !important; }
+      .page-break-inside-avoid { page-break-inside: avoid; }
     }
   </style>
 </head>
@@ -198,15 +194,8 @@
     </div>
     <!-- VISTA 4: PRESENZE, ACCONTI & CALENDARIO DEDICATO AZIENDE -->
     <div id="view-presenze" class="space-y-4 hidden">
-      <!-- Intestazione Stampa Presenze (Visibile solo in Stampa) -->
-      <div class="hidden print:block mb-4 border-b border-black pb-2">
-        <h1 class="text-xl font-bold">RIEPILOGO PRESENZE & ACCONTI - LIFE 4.0</h1>
-        <p class="text-sm text-gray-600">Azienda: <span id="print-presenze-azienda" class="font-semibold"></span> | Mese: <span id="print-presenze-mese" class="font-semibold"></span></p>
-        <p class="text-xs text-gray-500 font-semibold">Dipendente: <span id="print-presenze-dipendente"></span></p>
-      </div>
-
       <!-- Selezione Azienda Cliccabile -->
-      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl space-y-2">
+      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl space-y-2 no-print">
         <div class="flex items-center justify-between">
           <span class="text-xs font-semibold text-slate-300"><i class="fa-solid fa-building text-indigo-400 mr-1.5"></i>Seleziona Azienda:</span>
           <button onclick="openDipendenteModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] px-2.5 py-1 rounded-lg font-medium flex items-center space-x-1">
@@ -216,8 +205,8 @@
         </div>
         <div id="presenze-azienda-buttons" class="flex flex-wrap gap-1.5 pt-1"></div>
       </div>
-      <!-- Barra Dipendenti dell'Azienda Selezionata e Pulsante Stampa -->
-      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-2">
+      <!-- Barra Dipendenti dell'Azienda Selezionata & Bottoni Stampa -->
+      <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex flex-wrap items-center justify-between gap-2 no-print">
         <div class="flex items-center space-x-2 min-w-0 flex-1">
           <i class="fa-solid fa-users text-indigo-400 text-sm flex-shrink-0"></i>
           <label class="text-xs text-slate-300 font-medium flex-shrink-0">Dipendente:</label>
@@ -225,18 +214,24 @@
             <option value="">Seleziona un dipendente...</option>
           </select>
         </div>
-        <div class="flex items-center space-x-1.5 flex-shrink-0">
+        <div class="flex items-center space-x-1 flex-shrink-0">
           <button id="btn-delete-dipendente" onclick="deleteCurrentDipendente()" class="hidden text-xs text-red-400 hover:text-red-300 p-1.5 bg-red-500/10 rounded-lg border border-red-500/20" title="Elimina Dipendente">
             <i class="fa-solid fa-user-minus"></i>
           </button>
-          <button onclick="stampaRiepilogoPresenze()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-1">
+          <button onclick="stampaRiepilogoPresenze('singolo')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-1" title="Stampa Dipendente Selezionato">
             <i class="fa-solid fa-print"></i>
-            <span>Stampa Riepilogo</span>
+            <span class="hidden sm:inline">Stampa Dip.</span>
+          </button>
+          <button onclick="stampaRiepilogoPresenze('tutti')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center space-x-1" title="Stampa Tutti i Dipendenti dell'Azienda">
+            <i class="fa-solid fa-print"></i>
+            <span>Stampa Tutti</span>
           </button>
         </div>
       </div>
+      <!-- Intestazione e Contenuto Stampa Presenze (visibile solo in stampa) -->
+      <div id="print-presenze-view" class="hidden print:block mb-4 space-y-6"></div>
       <!-- Calendario Dedicato e Riepilogo -->
-      <div id="presenze-calendar-section" class="space-y-4">
+      <div id="presenze-calendar-section" class="space-y-4 no-print">
         <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl space-y-3">
           <!-- Intestazione Mese & Anno -->
           <div class="flex items-center justify-between">
@@ -854,7 +849,7 @@
       document.getElementById('print-date').innerText = new Date().toLocaleDateString('it-IT');
     }
     /* ==========================================================================
-       GESTIONE NUOVA SEZIONE: PRESENZE, ACCONTI & CALENDARIO DEDICATO AZIENDE
+       GESTIONE SEZIONE: PRESENZE, ACCONTI & CALENDARIO DEDICATO AZIENDE
        ========================================================================== */
     function renderPresenzeView() {
       const btnContainer = document.getElementById('presenze-azienda-buttons');
@@ -914,25 +909,6 @@
       currentCalDate.setMonth(currentCalDate.getMonth() + delta);
       renderCalendar();
     }
-    function updatePrintPresenzeHeader() {
-      const dipSelect = document.getElementById('presenze-dipendente-select');
-      const dipText = (dipSelect && dipSelect.selectedIndex >= 0 && dipSelect.options[dipSelect.selectedIndex] && dipSelect.value) 
-        ? dipSelect.options[dipSelect.selectedIndex].text 
-        : 'Tutti i Dipendenti / Nessuno';
-      const monthTitle = document.getElementById('cal-month-year-title') ? document.getElementById('cal-month-year-title').innerText : '';
-      
-      const elAzienda = document.getElementById('print-presenze-azienda');
-      const elMese = document.getElementById('print-presenze-mese');
-      const elDip = document.getElementById('print-presenze-dipendente');
-      
-      if (elAzienda) elAzienda.innerText = activePresenzeActivity || 'Nessuna';
-      if (elMese) elMese.innerText = monthTitle;
-      if (elDip) elDip.innerText = dipText;
-    }
-    function stampaRiepilogoPresenze() {
-      updatePrintPresenzeHeader();
-      window.print();
-    }
     function renderCalendar() {
       const monthTitle = document.getElementById('cal-month-year-title');
       const grid = document.getElementById('calendar-grid');
@@ -942,7 +918,6 @@
       const month = currentCalDate.getMonth();
       const monthNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
       monthTitle.innerText = `${monthNames[month]} ${year}`;
-      updatePrintPresenzeHeader();
       const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = Dom
       const totalDays = new Date(year, month + 1, 0).getDate();
       const startOffset = (firstDayIndex + 6) % 7; // Lunedi = 0
@@ -1001,6 +976,129 @@
       document.getElementById('stat-tot-acconti').innerText = `€ ${totalAccontiMese.toFixed(2)}`;
       document.getElementById('stat-tot-giorni').innerText = `${totalGiorniPresenza} gg`;
     }
+    
+    /* NUOVA FUNZIONE DI STAMPA RIEPILOGO PRESENZE & ACCONTI (SINGOLO O TUTTI I DIPENDENTI) */
+    function stampaRiepilogoPresenze(mode) {
+      const printContainer = document.getElementById('print-presenze-view');
+      if (!printContainer) return;
+
+      const year = currentCalDate.getFullYear();
+      const month = currentCalDate.getMonth();
+      const monthNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
+      const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+      const periodTitle = `${monthNames[month]} ${year}`;
+
+      let dipsToPrint = [];
+      if (mode === 'singolo') {
+        if (!activeDipendenteId) {
+          alert("Seleziona prima un dipendente!");
+          return;
+        }
+        dipsToPrint = dipendentiList.filter(d => d.id === activeDipendenteId);
+      } else {
+        dipsToPrint = dipendentiList.filter(d => d.activity === activePresenzeActivity);
+      }
+
+      if (dipsToPrint.length === 0) {
+        alert("Nessun dipendente registrato per questa azienda nel periodo selezionato.");
+        return;
+      }
+
+      let html = `
+        <div class="border-b-2 border-black pb-3 mb-4">
+          <h1 class="text-xl font-bold uppercase tracking-wide">RIEPILOGO MENSILE PRESENZE & ACCONTI</h1>
+          <div class="flex justify-between items-center text-sm font-semibold mt-1">
+            <span>AZIENDA: <strong>${escapeHtml(activePresenzeActivity)}</strong></span>
+            <span>PERIODO: <strong>${periodTitle}</strong></span>
+          </div>
+        </div>
+      `;
+
+      dipsToPrint.forEach((dip) => {
+        const pres = presenzeList.filter(p => p.dipendenteId === dip.id && p.date && p.date.startsWith(monthStr));
+        const accs = accontiList.filter(a => a.dipendenteId === dip.id && a.date && a.date.startsWith(monthStr));
+
+        const totOre = pres.reduce((sum, p) => sum + (parseFloat(p.hours) || 0), 0);
+        const ggPresente = pres.filter(p => p.status === 'presente').length;
+        const ggFerie = pres.filter(p => p.status === 'ferie').length;
+        const ggPermesso = pres.filter(p => p.status === 'permesso').length;
+        const totAcconti = accs.reduce((sum, a) => sum + (parseFloat(a.amount) || 0), 0);
+
+        pres.sort((a, b) => a.date.localeCompare(b.date));
+        accs.sort((a, b) => a.date.localeCompare(b.date));
+
+        html += `
+          <div class="mb-6 pb-4 border-b border-gray-300 page-break-inside-avoid">
+            <div class="bg-gray-100 p-2.5 rounded border border-gray-300 mb-3 flex justify-between items-center">
+              <div>
+                <h2 class="text-base font-bold text-black">${escapeHtml(dip.name)}</h2>
+                ${dip.role ? `<span class="text-xs text-gray-600 font-medium">Mansione: ${escapeHtml(dip.role)}</span>` : ''}
+              </div>
+              <div class="text-right text-xs">
+                <div>Presenze: <strong>${ggPresente} gg (${totOre} ore)</strong></div>
+                <div>Ferie/Permessi: <strong>${ggFerie} gg ferie / ${ggPermesso} permessi</strong></div>
+                <div>Totale Acconti: <strong class="text-black">€ ${totAcconti.toFixed(2)}</strong></div>
+              </div>
+            </div>
+
+            <!-- Tabella Dettaglio Presenze -->
+            <div class="mb-3">
+              <h3 class="text-xs font-bold uppercase mb-1 text-gray-700">Dettaglio Giornaliero Presenze:</h3>
+              <table class="w-full text-left text-xs border-collapse border border-gray-300">
+                <thead>
+                  <tr class="bg-gray-200">
+                    <th class="border border-gray-300 px-2 py-1">Data</th>
+                    <th class="border border-gray-300 px-2 py-1">Stato</th>
+                    <th class="border border-gray-300 px-2 py-1">Ore</th>
+                    <th class="border border-gray-300 px-2 py-1">Note / Dettagli</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${pres.length === 0 ? '<tr><td colspan="4" class="border border-gray-300 px-2 py-1 text-gray-500 italic">Nessuna presenza registrata per questo mese.</td></tr>' : ''}
+                  ${pres.map(p => `
+                    <tr>
+                      <td class="border border-gray-300 px-2 py-1 font-medium">${formatDate(p.date)}</td>
+                      <td class="border border-gray-300 px-2 py-1 capitalize">${p.status}</td>
+                      <td class="border border-gray-300 px-2 py-1 font-bold">${p.hours || 0} h</td>
+                      <td class="border border-gray-300 px-2 py-1">${escapeHtml(p.notes || '-')}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Tabella Dettaglio Acconti -->
+            ${accs.length > 0 ? `
+              <div>
+                <h3 class="text-xs font-bold uppercase mb-1 text-gray-700">Dettaglio Acconti Erogati:</h3>
+                <table class="w-full text-left text-xs border-collapse border border-gray-300">
+                  <thead>
+                    <tr class="bg-gray-200">
+                      <th class="border border-gray-300 px-2 py-1">Data</th>
+                      <th class="border border-gray-300 px-2 py-1">Importo</th>
+                      <th class="border border-gray-300 px-2 py-1">Causale / Note</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${accs.map(a => `
+                      <tr>
+                        <td class="border border-gray-300 px-2 py-1 font-medium">${formatDate(a.date)}</td>
+                        <td class="border border-gray-300 px-2 py-1 font-bold">€ ${parseFloat(a.amount).toFixed(2)}</td>
+                        <td class="border border-gray-300 px-2 py-1">${escapeHtml(a.notes || '-')}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            ` : '<p class="text-xs text-gray-500 italic">Nessun acconto registrato nel mese.</p>'}
+          </div>
+        `;
+      });
+
+      printContainer.innerHTML = html;
+      window.print();
+    }
+
     function openDayModal(dateStr) {
       if (!activeDipendenteId) {
         alert("Seleziona o aggiungi prima un dipendente per questa azienda!");
