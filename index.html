@@ -11,7 +11,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#0f172a">
   
-  <!-- Nuova Icona Personalizzata Integrata (Design Moderno & Pulito) -->
+  <!-- Icona Personalizzata Integrata -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='512' height='512'><defs><linearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%230F172A'/><stop offset='100%25' stop-color='%23020617'/></linearGradient><linearGradient id='glow' x1='0%25' y1='100%25' x2='100%25' y2='0%25'><stop offset='0%25' stop-color='%2310B981'/><stop offset='100%25' stop-color='%2306B6D4'/></linearGradient></defs><rect width='512' height='512' rx='115' fill='url(%23bg)'/><circle cx='256' cy='220' r='150' fill='none' stroke='url(%23glow)' stroke-width='8' opacity='0.2'/><path d='M 120 250 L 180 250 L 215 170 L 250 290 L 290 140 L 330 220 L 390 220' fill='none' stroke='url(%23glow)' stroke-width='22' stroke-linecap='round' stroke-linejoin='round'/><circle cx='290' cy='140' r='14' fill='%2310B981'/><text x='256' y='400' font-family='Arial, sans-serif' font-size='44' font-weight='900' fill='%23FFFFFF' letter-spacing='6' text-anchor='middle'>LIFE 4.0</text></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' width='512' height='512'><defs><linearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%230F172A'/><stop offset='100%25' stop-color='%23020617'/></linearGradient><linearGradient id='glow' x1='0%25' y1='100%25' x2='100%25' y2='0%25'><stop offset='0%25' stop-color='%2310B981'/><stop offset='100%25' stop-color='%2306B6D4'/></linearGradient></defs><rect width='512' height='512' rx='115' fill='url(%23bg)'/><circle cx='256' cy='220' r='150' fill='none' stroke='url(%23glow)' stroke-width='8' opacity='0.2'/><path d='M 120 250 L 180 250 L 215 170 L 250 290 L 290 140 L 330 220 L 390 220' fill='none' stroke='url(%23glow)' stroke-width='22' stroke-linecap='round' stroke-linejoin='round'/><circle cx='290' cy='140' r='14' fill='%2310B981'/><text x='256' y='400' font-family='Arial, sans-serif' font-size='44' font-weight='900' fill='%23FFFFFF' letter-spacing='6' text-anchor='middle'>LIFE 4.0</text></svg>">
   <title>Life 4.0 - Enterprise & Family Suite</title>
@@ -65,6 +65,12 @@
         </div>
       </div>
       <div class="flex items-center space-x-1.5 flex-shrink-0">
+        <!-- Bottone Selezione Codice Profilo / Gruppo -->
+        <button onclick="openProfileModal()" title="Cambia Profilo / Gruppo" class="px-2.5 py-2 bg-indigo-950/80 hover:bg-indigo-900/80 text-indigo-300 border border-indigo-500/40 rounded-lg text-xs font-semibold flex items-center space-x-1">
+          <i class="fa-solid fa-users-line text-xs"></i>
+          <span class="hidden sm:inline">Profilo:</span>
+          <span id="current-profile-display" class="font-bold text-emerald-400 uppercase">---</span>
+        </button>
         <button onclick="openActivitiesModal()" title="Personalizza Nomi Attività" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs flex items-center space-x-1">
           <i class="fa-solid fa-sliders"></i>
           <span class="hidden sm:inline">Aziende</span>
@@ -271,6 +277,33 @@
       </div>
     </div>
   </main>
+
+  <!-- MODALE SELEZIONE / CAMBIO CODICE PROFILO -->
+  <div id="profile-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden no-print">
+    <div class="bg-slate-900 border border-indigo-500/40 w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-2xl">
+      <div class="text-center space-y-1">
+        <div class="w-12 h-12 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center mx-auto text-xl font-bold mb-2">
+          <i class="fa-solid fa-users"></i>
+        </div>
+        <h3 class="font-bold text-lg text-slate-100">Accesso Profilo / Gruppo</h3>
+        <p class="text-xs text-slate-400">Inserisci il codice identificativo del tuo gruppo (es. <b class="text-indigo-400">N</b>, <b class="text-indigo-400">F</b>, <b class="text-indigo-400">G</b> o codice personalizzato).</p>
+      </div>
+      <form onsubmit="saveProfileCode(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Codice Profilo Sync</label>
+          <input type="text" id="profile-input-code" required placeholder="es. N, F, G..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-slate-100 uppercase tracking-widest font-bold text-center focus:outline-none focus:border-indigo-500 text-base">
+        </div>
+        <p class="text-[10px] text-slate-500 text-center">Tutti gli utenti che usano lo stesso codice vedranno e aggiorneranno gli stessi dati in tempo reale!</p>
+        <div class="flex space-x-2 pt-1">
+          <button type="button" id="btn-close-profile-modal" onclick="closeProfileModal()" class="flex-1 bg-slate-800 text-slate-300 py-3 rounded-xl font-bold hidden">Annulla</button>
+          <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-bold shadow-lg shadow-indigo-600/30 text-xs tracking-wide uppercase">
+            Entra nel Profilo
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- MODALE PERSONALIZZAZIONE ATTIVITÀ -->
   <div id="activities-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden no-print">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-4 sm:p-5 space-y-4 max-h-[90vh] overflow-y-auto">
@@ -455,6 +488,9 @@
       appId: "1:27122317516:web:e39f64ae0b81edeba2ea69"
     };
     let db = null;
+    let currentProfileCode = localStorage.getItem('life40_profile_code') || '';
+    let unsubscribes = [];
+
     let itemsList = [];
     let dipendentiList = [];
     let presenzeList = [];
@@ -464,6 +500,7 @@
     let currentCalDate = new Date();
     let selectedCalDayStr = '';
     let activityNames = ["Casa / Famiglia", "Attività 1", "Attività 2", "Attività 3", "Attività 4", "Attività 5"];
+    
     const ACTIVITY_THEMES = [
       { bg: 'bg-indigo-950/30', border: 'border-indigo-500/40', text: 'text-indigo-400', badge: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', headerBg: 'bg-indigo-900/30' },
       { bg: 'bg-emerald-950/30', border: 'border-emerald-500/40', text: 'text-emerald-400', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', headerBg: 'bg-emerald-900/30' },
@@ -482,7 +519,7 @@
       "Viaggi & Trasporti", "Svago & Intrattenimento", "Alcolici & Bar", "Spesa Alimentare",
       "Affitto & Mutuo", "Forniture & Materiali", "Consulenze & Servizi", "Manutenzioni & Riparazioni",
       "Carburante & Veicoli", "Assicurazioni", "Stipendi & Collaboratori", "Giochi & Lotterie",
-      "Sigarette & Vizi", "Elettronica", "Vestiti & Moda", "Altro Uscita"
+      "Sigarettes & Vizi", "Elettronica", "Vestiti & Moda", "Altro Uscita"
     ];
     const CATEGORIES_ENTRATE = [
       "Incasso Clienti / Vendite", "Stipendio / Compensi", "Affitti Attivi / Rendite",
@@ -492,15 +529,45 @@
       "Patente & Guida", "Carta d'Identità & Passaporto", "Assicurazione & Polizza",
       "Bollo & Veicoli", "Garanzia Prodotto", "Contratto & Affitto", "Certificato & Documento"
     ];
+    
     const LOCAL_KEY = 'life40_hub_data';
     const ACT_KEY = 'life40_custom_activities';
     const LOCAL_DIP_KEY = 'life40_dipendenti_data';
     const LOCAL_PRES_KEY = 'life40_presenze_data';
     const LOCAL_ACC_KEY = 'life40_acconti_data';
+
+    function openProfileModal() {
+      document.getElementById('profile-input-code').value = currentProfileCode || '';
+      const closeBtn = document.getElementById('btn-close-profile-modal');
+      if (currentProfileCode) {
+        closeBtn.classList.remove('hidden');
+      } else {
+        closeBtn.classList.add('hidden');
+      }
+      document.getElementById('profile-modal').classList.remove('hidden');
+    }
+    function closeProfileModal() {
+      if (currentProfileCode) {
+        document.getElementById('profile-modal').classList.add('hidden');
+      }
+    }
+    function saveProfileCode(e) {
+      e.preventDefault();
+      const codeInput = document.getElementById('profile-input-code').value.trim().toUpperCase();
+      if (!codeInput) return;
+      currentProfileCode = codeInput;
+      localStorage.setItem('life40_profile_code', currentProfileCode);
+      document.getElementById('current-profile-display').innerText = currentProfileCode;
+      document.getElementById('profile-modal').classList.add('hidden');
+      loadInitialData();
+    }
+
     function loadCustomActivities() {
-      const saved = localStorage.getItem(ACT_KEY);
+      const saved = localStorage.getItem(ACT_KEY + '_' + currentProfileCode);
       if (saved) {
         try { activityNames = JSON.parse(saved); } catch(e){}
+      } else {
+        activityNames = ["Casa / Famiglia", "Attività 1", "Attività 2", "Attività 3", "Attività 4", "Attività 5"];
       }
       populateActivityDropdowns();
     }
@@ -604,14 +671,28 @@
         return { status: 'valid', days: diffDays, label: `🟢 VALIDO (${diffDays} gg)`, badgeClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' };
       }
     }
+
+    function clearListeners() {
+      unsubscribes.forEach(unsub => { if (typeof unsub === 'function') unsub(); });
+      unsubscribes = [];
+    }
+
     function initFirebase() {
       try {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
-        db.collection('life40_settings').doc('activities').onSnapshot(doc => {
+
+        clearListeners();
+        if (!currentProfileCode) return false;
+
+        document.getElementById('cloud-status-text').innerText = `Cloud Sincronizzato con Firebase (Profilo: ${currentProfileCode})`;
+
+        const profileRef = db.collection('life40_profiles').doc(currentProfileCode);
+
+        const u1 = profileRef.collection('settings').doc('activities').onSnapshot(doc => {
           if (doc.exists && doc.data().names) {
             activityNames = doc.data().names;
-            localStorage.setItem(ACT_KEY, JSON.stringify(activityNames));
+            localStorage.setItem(ACT_KEY + '_' + currentProfileCode, JSON.stringify(activityNames));
             populateActivityDropdowns();
             renderItems();
             renderReport();
@@ -619,34 +700,43 @@
             renderPresenzeView();
           }
         });
+        unsubscribes.push(u1);
         
-        db.collection('life40_items').onSnapshot(snapshot => {
+        const u2 = profileRef.collection('items').onSnapshot(snapshot => {
           itemsList = [];
           snapshot.forEach(doc => { itemsList.push({ id: doc.id, ...doc.data() }); });
-          localStorage.setItem(LOCAL_KEY, JSON.stringify(itemsList));
+          localStorage.setItem(LOCAL_KEY + '_' + currentProfileCode, JSON.stringify(itemsList));
           renderItems();
           renderReport();
           renderScadenze();
           updateDashboardMetrics();
         });
-        db.collection('life40_dipendenti').onSnapshot(snapshot => {
+        unsubscribes.push(u2);
+
+        const u3 = profileRef.collection('dipendenti').onSnapshot(snapshot => {
           dipendentiList = [];
           snapshot.forEach(doc => { dipendentiList.push({ id: doc.id, ...doc.data() }); });
-          localStorage.setItem(LOCAL_DIP_KEY, JSON.stringify(dipendentiList));
+          localStorage.setItem(LOCAL_DIP_KEY + '_' + currentProfileCode, JSON.stringify(dipendentiList));
           renderPresenzeView();
         });
-        db.collection('life40_presenze').onSnapshot(snapshot => {
+        unsubscribes.push(u3);
+
+        const u4 = profileRef.collection('presenze').onSnapshot(snapshot => {
           presenzeList = [];
           snapshot.forEach(doc => { presenzeList.push({ id: doc.id, ...doc.data() }); });
-          localStorage.setItem(LOCAL_PRES_KEY, JSON.stringify(presenzeList));
+          localStorage.setItem(LOCAL_PRES_KEY + '_' + currentProfileCode, JSON.stringify(presenzeList));
           renderCalendar();
         });
-        db.collection('life40_acconti').onSnapshot(snapshot => {
+        unsubscribes.push(u4);
+
+        const u5 = profileRef.collection('acconti').onSnapshot(snapshot => {
           accontiList = [];
           snapshot.forEach(doc => { accontiList.push({ id: doc.id, ...doc.data() }); });
-          localStorage.setItem(LOCAL_ACC_KEY, JSON.stringify(accontiList));
+          localStorage.setItem(LOCAL_ACC_KEY + '_' + currentProfileCode, JSON.stringify(accontiList));
           renderCalendar();
         });
+        unsubscribes.push(u5);
+
         return true;
       } catch (e) {
         console.error("Errore Firebase:", e);
@@ -654,16 +744,20 @@
       }
     }
     function loadInitialData() {
+      if (!currentProfileCode) {
+        openProfileModal();
+        return;
+      }
       loadCustomActivities();
       populateCategoryDropdowns();
       if (!initFirebase()) {
-        const local = localStorage.getItem(LOCAL_KEY);
+        const local = localStorage.getItem(LOCAL_KEY + '_' + currentProfileCode);
         itemsList = local ? JSON.parse(local) : [];
-        const localDip = localStorage.getItem(LOCAL_DIP_KEY);
+        const localDip = localStorage.getItem(LOCAL_DIP_KEY + '_' + currentProfileCode);
         dipendentiList = localDip ? JSON.parse(localDip) : [];
-        const localPres = localStorage.getItem(LOCAL_PRES_KEY);
+        const localPres = localStorage.getItem(LOCAL_PRES_KEY + '_' + currentProfileCode);
         presenzeList = localPres ? JSON.parse(localPres) : [];
-        const localAcc = localStorage.getItem(LOCAL_ACC_KEY);
+        const localAcc = localStorage.getItem(LOCAL_ACC_KEY + '_' + currentProfileCode);
         accontiList = localAcc ? JSON.parse(localAcc) : [];
         renderItems();
         renderReport();
@@ -687,13 +781,13 @@
         alertDays: parseInt(document.getElementById('item-alert-days').value) || 30,
         attachment: document.getElementById('item-attachment-base64').value || ""
       };
-      if (db) {
-        await db.collection('life40_items').doc(id).set(itemData);
+      if (db && currentProfileCode) {
+        await db.collection('life40_profiles').doc(currentProfileCode).collection('items').doc(id).set(itemData);
       } else {
         const idx = itemsList.findIndex(i => i.id === id);
         if (idx >= 0) itemsList[idx] = { id, ...itemData };
         else itemsList.push({ id, ...itemData });
-        localStorage.setItem(LOCAL_KEY, JSON.stringify(itemsList));
+        localStorage.setItem(LOCAL_KEY + '_' + currentProfileCode, JSON.stringify(itemsList));
         renderItems();
         renderReport();
         renderScadenze();
@@ -703,10 +797,10 @@
     }
     async function deleteItem(id) {
       if (confirm('Vuoi cancellare questa voce?')) {
-        if (db) await db.collection('life40_items').doc(id).delete();
+        if (db && currentProfileCode) await db.collection('life40_profiles').doc(currentProfileCode).collection('items').doc(id).delete();
         else {
           itemsList = itemsList.filter(i => i.id !== id);
-          localStorage.setItem(LOCAL_KEY, JSON.stringify(itemsList));
+          localStorage.setItem(LOCAL_KEY + '_' + currentProfileCode, JSON.stringify(itemsList));
           renderItems(); renderReport(); renderScadenze(); updateDashboardMetrics();
         }
       }
@@ -848,9 +942,7 @@
       }
       document.getElementById('print-date').innerText = new Date().toLocaleDateString('it-IT');
     }
-    /* ==========================================================================
-       GESTIONE SEZIONE: PRESENZE, ACCONTI & CALENDARIO DEDICATO AZIENDE
-       ========================================================================== */
+    
     function renderPresenzeView() {
       const btnContainer = document.getElementById('presenze-azienda-buttons');
       btnContainer.innerHTML = '';
@@ -918,9 +1010,9 @@
       const month = currentCalDate.getMonth();
       const monthNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
       monthTitle.innerText = `${monthNames[month]} ${year}`;
-      const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = Dom
+      const firstDayIndex = new Date(year, month, 1).getDay();
       const totalDays = new Date(year, month + 1, 0).getDate();
-      const startOffset = (firstDayIndex + 6) % 7; // Lunedi = 0
+      const startOffset = (firstDayIndex + 6) % 7;
       for (let i = 0; i < startOffset; i++) {
         const emptyCell = document.createElement('div');
         emptyCell.className = 'h-12 sm:h-14 bg-slate-950/40 rounded-lg border border-slate-800/30';
@@ -977,17 +1069,14 @@
       document.getElementById('stat-tot-giorni').innerText = `${totalGiorniPresenza} gg`;
     }
     
-    /* NUOVA FUNZIONE DI STAMPA RIEPILOGO PRESENZE & ACCONTI (SINGOLO O TUTTI I DIPENDENTI) */
     function stampaRiepilogoPresenze(mode) {
       const printContainer = document.getElementById('print-presenze-view');
       if (!printContainer) return;
-
       const year = currentCalDate.getFullYear();
       const month = currentCalDate.getMonth();
       const monthNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
       const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
       const periodTitle = `${monthNames[month]} ${year}`;
-
       let dipsToPrint = [];
       if (mode === 'singolo') {
         if (!activeDipendenteId) {
@@ -998,12 +1087,10 @@
       } else {
         dipsToPrint = dipendentiList.filter(d => d.activity === activePresenzeActivity);
       }
-
       if (dipsToPrint.length === 0) {
         alert("Nessun dipendente registrato per questa azienda nel periodo selezionato.");
         return;
       }
-
       let html = `
         <div class="border-b-2 border-black pb-3 mb-4">
           <h1 class="text-xl font-bold uppercase tracking-wide">RIEPILOGO MENSILE PRESENZE & ACCONTI</h1>
@@ -1013,20 +1100,16 @@
           </div>
         </div>
       `;
-
       dipsToPrint.forEach((dip) => {
         const pres = presenzeList.filter(p => p.dipendenteId === dip.id && p.date && p.date.startsWith(monthStr));
         const accs = accontiList.filter(a => a.dipendenteId === dip.id && a.date && a.date.startsWith(monthStr));
-
         const totOre = pres.reduce((sum, p) => sum + (parseFloat(p.hours) || 0), 0);
         const ggPresente = pres.filter(p => p.status === 'presente').length;
         const ggFerie = pres.filter(p => p.status === 'ferie').length;
         const ggPermesso = pres.filter(p => p.status === 'permesso').length;
         const totAcconti = accs.reduce((sum, a) => sum + (parseFloat(a.amount) || 0), 0);
-
         pres.sort((a, b) => a.date.localeCompare(b.date));
         accs.sort((a, b) => a.date.localeCompare(b.date));
-
         html += `
           <div class="mb-6 pb-4 border-b border-gray-300 page-break-inside-avoid">
             <div class="bg-gray-100 p-2.5 rounded border border-gray-300 mb-3 flex justify-between items-center">
@@ -1040,8 +1123,6 @@
                 <div>Totale Acconti: <strong class="text-black">€ ${totAcconti.toFixed(2)}</strong></div>
               </div>
             </div>
-
-            <!-- Tabella Dettaglio Presenze -->
             <div class="mb-3">
               <h3 class="text-xs font-bold uppercase mb-1 text-gray-700">Dettaglio Giornaliero Presenze:</h3>
               <table class="w-full text-left text-xs border-collapse border border-gray-300">
@@ -1066,8 +1147,6 @@
                 </tbody>
               </table>
             </div>
-
-            <!-- Tabella Dettaglio Acconti -->
             ${accs.length > 0 ? `
               <div>
                 <h3 class="text-xs font-bold uppercase mb-1 text-gray-700">Dettaglio Acconti Erogati:</h3>
@@ -1094,11 +1173,9 @@
           </div>
         `;
       });
-
       printContainer.innerHTML = html;
       window.print();
     }
-
     function openDayModal(dateStr) {
       if (!activeDipendenteId) {
         alert("Seleziona o aggiungi prima un dipendente per questa azienda!");
@@ -1160,13 +1237,13 @@
         hours,
         notes
       };
-      if (db) {
-        await db.collection('life40_presenze').doc(presId).set(presData);
+      if (db && currentProfileCode) {
+        await db.collection('life40_profiles').doc(currentProfileCode).collection('presenze').doc(presId).set(presData);
       } else {
         const idx = presenzeList.findIndex(p => p.id === presId);
         if (idx >= 0) presenzeList[idx] = { id: presId, ...presData };
         else presenzeList.push({ id: presId, ...presData });
-        localStorage.setItem(LOCAL_PRES_KEY, JSON.stringify(presenzeList));
+        localStorage.setItem(LOCAL_PRES_KEY + '_' + currentProfileCode, JSON.stringify(presenzeList));
         renderCalendar();
       }
       closeDayModal();
@@ -1187,11 +1264,11 @@
         amount,
         notes
       };
-      if (db) {
-        await db.collection('life40_acconti').doc(accId).set(accData);
+      if (db && currentProfileCode) {
+        await db.collection('life40_profiles').doc(currentProfileCode).collection('acconti').doc(accId).set(accData);
       } else {
         accontiList.push({ id: accId, ...accData });
-        localStorage.setItem(LOCAL_ACC_KEY, JSON.stringify(accontiList));
+        localStorage.setItem(LOCAL_ACC_KEY + '_' + currentProfileCode, JSON.stringify(accontiList));
         renderCalendar();
       }
       document.getElementById('day-acconto-amount').value = '';
@@ -1201,11 +1278,11 @@
     }
     async function deleteAcconto(accId) {
       if (confirm("Vuoi cancellare questo acconto?")) {
-        if (db) {
-          await db.collection('life40_acconti').doc(accId).delete();
+        if (db && currentProfileCode) {
+          await db.collection('life40_profiles').doc(currentProfileCode).collection('acconti').doc(accId).delete();
         } else {
           accontiList = accontiList.filter(a => a.id !== accId);
-          localStorage.setItem(LOCAL_ACC_KEY, JSON.stringify(accontiList));
+          localStorage.setItem(LOCAL_ACC_KEY + '_' + currentProfileCode, JSON.stringify(accontiList));
           renderCalendar();
         }
         renderDayRecords();
@@ -1228,11 +1305,11 @@
       if (!name) return;
       const dipId = Date.now().toString();
       const dipData = { name, role, activity };
-      if (db) {
-        await db.collection('life40_dipendenti').doc(dipId).set(dipData);
+      if (db && currentProfileCode) {
+        await db.collection('life40_profiles').doc(currentProfileCode).collection('dipendenti').doc(dipId).set(dipData);
       } else {
         dipendentiList.push({ id: dipId, ...dipData });
-        localStorage.setItem(LOCAL_DIP_KEY, JSON.stringify(dipendentiList));
+        localStorage.setItem(LOCAL_DIP_KEY + '_' + currentProfileCode, JSON.stringify(dipendentiList));
       }
       activePresenzeActivity = activity;
       activeDipendenteId = dipId;
@@ -1244,11 +1321,11 @@
       const dip = dipendentiList.find(d => d.id === activeDipendenteId);
       if (!dip) return;
       if (confirm(`Sei sicuro di voler eliminare il dipendente "${dip.name}"?`)) {
-        if (db) {
-          await db.collection('life40_dipendenti').doc(activeDipendenteId).delete();
+        if (db && currentProfileCode) {
+          await db.collection('life40_profiles').doc(currentProfileCode).collection('dipendenti').doc(activeDipendenteId).delete();
         } else {
           dipendentiList = dipendentiList.filter(d => d.id !== activeDipendenteId);
-          localStorage.setItem(LOCAL_DIP_KEY, JSON.stringify(dipendentiList));
+          localStorage.setItem(LOCAL_DIP_KEY + '_' + currentProfileCode, JSON.stringify(dipendentiList));
         }
         activeDipendenteId = '';
         renderPresenzeView();
@@ -1376,8 +1453,8 @@
       for (let i = 0; i < 6; i++) {
         activityNames[i] = document.getElementById(`act-name-${i}`).value.trim() || `Attività ${i+1}`;
       }
-      localStorage.setItem(ACT_KEY, JSON.stringify(activityNames));
-      if (db) await db.collection('life40_settings').doc('activities').set({ names: activityNames });
+      localStorage.setItem(ACT_KEY + '_' + currentProfileCode, JSON.stringify(activityNames));
+      if (db && currentProfileCode) await db.collection('life40_profiles').doc(currentProfileCode).collection('settings').doc('activities').set({ names: activityNames });
       populateActivityDropdowns();
       closeActivitiesModal();
       renderItems();
@@ -1421,11 +1498,18 @@
     }
     function formatDate(d) { if(!d) return ''; const [y, m, day] = d.split('-'); return `${day}/${m}/${y}`; }
     function escapeHtml(str) { return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+    
     document.addEventListener('DOMContentLoaded', () => {
       const today = new Date();
       document.getElementById('report-year').value = today.getFullYear();
       document.getElementById('report-month').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-      loadInitialData();
+      
+      if (currentProfileCode) {
+        document.getElementById('current-profile-display').innerText = currentProfileCode;
+        loadInitialData();
+      } else {
+        openProfileModal();
+      }
     });
   </script>
 </body>
