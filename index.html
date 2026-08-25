@@ -465,7 +465,10 @@
           <label class="block text-[10px] text-slate-400 mb-1">Note Presenza</label>
           <input type="text" id="day-presenza-notes" placeholder="es. Cantiere X, Straordinari..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs">
         </div>
-        <button onclick="saveDayPresenza()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-xs font-medium shadow-md shadow-emerald-600/20">Salva Presenza</button>
+        <div class="flex space-x-2">
+          <button onclick="saveDayPresenza()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-xs font-medium shadow-md shadow-emerald-600/20">Salva Presenza</button>
+          <button onclick="deleteDayPresenza()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-2 rounded-lg text-xs font-medium transition" title="Cancella Presenza Giorno">Cancella Presenza</button>
+        </div>
       </div>
       <!-- Sezione Acconto -->
       <div class="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
@@ -524,7 +527,6 @@
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
     }
-
     const ACTIVITY_THEMES = [
       { bg: 'bg-indigo-950/30', border: 'border-indigo-500/40', text: 'text-indigo-400', badge: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', headerBg: 'bg-indigo-900/30' },
       { bg: 'bg-emerald-950/30', border: 'border-emerald-500/40', text: 'text-emerald-400', badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', headerBg: 'bg-emerald-900/30' },
@@ -559,7 +561,6 @@
     const LOCAL_DIP_KEY = 'life40_dipendenti_data';
     const LOCAL_PRES_KEY = 'life40_presenze_data';
     const LOCAL_ACC_KEY = 'life40_acconti_data';
-
     function openProfileModal() {
       document.getElementById('profile-input-code').value = currentProfileCode || '';
       const closeBtn = document.getElementById('btn-close-profile-modal');
@@ -1325,6 +1326,27 @@
       }
       closeDayModal();
     }
+    async function deleteDayPresenza() {
+      const targetDipId = modalSelectedDipId || activeDipendenteId;
+      if (!targetDipId || targetDipId === 'ALL' || !selectedCalDayStr) return;
+      const existing = presenzeList.find(p => p.dipendenteId === targetDipId && p.date === selectedCalDayStr);
+      if (!existing) {
+        alert("Nessuna presenza registrata da cancellare per questo giorno.");
+        return;
+      }
+      if (confirm("Vuoi cancellare la presenza di questo giorno?")) {
+        if (db && currentProfileCode) {
+          await db.collection('life40_profiles').doc(currentProfileCode).collection('presenze').doc(existing.id).delete();
+        } else {
+          presenzeList = presenzeList.filter(p => p.id !== existing.id);
+          localStorage.setItem(LOCAL_PRES_KEY + '_' + currentProfileCode, JSON.stringify(presenzeList));
+          renderCalendar();
+          renderReport();
+          updateDashboardMetrics();
+        }
+        closeDayModal();
+      }
+    }
     async function saveDayAcconto() {
       const targetDipId = modalSelectedDipId || activeDipendenteId;
       if (!targetDipId || targetDipId === 'ALL' || !selectedCalDayStr) return;
@@ -1596,33 +1618,32 @@
       document.getElementById('item-modal').classList.remove('hidden');
     }
     function switchTab(view) {
-      ['movimenti', 'report', 'scadenze', 'presenze'].forEach(v => {
-        document.getElementById(`view-${v}`).classList.add('hidden');
-        document.getElementById(`tab-${v}`).classList.remove('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
-      });
+      document.getElementById('view-movimenti').classList.add('hidden');
+      document.getElementById('view-report').classList.add('hidden');
+      document.getElementById('view-scadenze').classList.add('hidden');
+      document.getElementById('view-presenze').classList.add('hidden');
+      
+      document.getElementById('tab-movimenti').className = 'flex-1 pb-2.5 transition text-center text-slate-400';
+      document.getElementById('tab-report').className = 'flex-1 pb-2.5 transition text-center text-slate-400';
+      document.getElementById('tab-scadenze').className = 'flex-1 pb-2.5 transition flex items-center justify-center space-x-1 text-center text-slate-400';
+      document.getElementById('tab-presenze').className = 'flex-1 pb-2.5 transition text-center flex items-center justify-center space-x-1 text-slate-400';
+      
       document.getElementById(`view-${view}`).classList.remove('hidden');
-      document.getElementById(`tab-${view}`).classList.add('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
+      const activeTab = document.getElementById(`tab-${view}`);
+      activeTab.className = 'flex-1 pb-2.5 text-indigo-400 border-b-2 border-indigo-500 font-semibold transition text-center flex items-center justify-center space-x-1';
+
+      if (view === 'movimenti') renderItems();
+      if (view === 'report') renderReport();
+      if (view === 'scadenze') renderScadenze();
+      if (view === 'presenze') renderPresenzeView();
     }
 
-    // Inizializzazione applicazione al caricamento
-    window.addEventListener('DOMContentLoaded', () => {
+    window.onload = function() {
       const now = new Date();
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      
-      const reportYearEl = document.getElementById('report-year');
-      if (reportYearEl) reportYearEl.value = year;
-      
-      const reportMonthEl = document.getElementById('report-month');
-      if (reportMonthEl) reportMonthEl.value = `${year}-${month}`;
-
-      if (currentProfileCode) {
-        const displayEl = document.getElementById('current-profile-display');
-        if (displayEl) displayEl.innerText = currentProfileCode;
-      }
-      
+      document.getElementById('report-year').value = now.getFullYear();
+      document.getElementById('report-month').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
       loadInitialData();
-    });
+    };
   </script>
 </body>
 </html>
