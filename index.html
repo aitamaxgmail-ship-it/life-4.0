@@ -33,8 +33,13 @@
       .text-slate-100, .text-slate-200, .text-slate-300, .text-slate-400, .text-indigo-300, .text-indigo-400 { color: black !important; }
       .text-emerald-400 { color: #059669 !important; }
       .text-red-400 { color: #dc2626 !important; }
+      .text-cyan-400 { color: #0891b2 !important; }
       .border-slate-800, .border-slate-700 { border-color: #eee !important; }
       .shadow-lg, .shadow-md, .backdrop-blur { box-shadow: none !important; filter: none !important; }
+      .bg-emerald-500\/20 { background-color: #d1fae5 !important; color: #065f46 !important; border: 1px solid #a7f3d0 !important; }
+      .bg-rose-500\/20 { background-color: #ffe4e6 !important; color: #9f1239 !important; border: 1px solid #fecdd3 !important; }
+      .bg-amber-500\/20 { background-color: #fef3c7 !important; color: #92400e !important; border: 1px solid #fde68a !important; }
+      .bg-cyan-500\/20 { background-color: #cffaff !important; color: #155e75 !important; border: 1px solid #a5f3fc !important; }
     }
   </style>
 </head>
@@ -191,9 +196,15 @@
       </div>
       <div id="scadenze-container" class="space-y-3"></div>
     </div>
-
     <!-- VISTA 4: PRESENZE, ACCONTI & CALENDARIO DEDICATO AZIENDE -->
     <div id="view-presenze" class="space-y-4 hidden">
+      <!-- Intestazione Stampa Presenze (Visibile solo in Stampa) -->
+      <div class="hidden print:block mb-4 border-b border-black pb-2">
+        <h1 class="text-xl font-bold">RIEPILOGO PRESENZE & ACCONTI - LIFE 4.0</h1>
+        <p class="text-sm text-gray-600">Azienda: <span id="print-presenze-azienda" class="font-semibold"></span> | Mese: <span id="print-presenze-mese" class="font-semibold"></span></p>
+        <p class="text-xs text-gray-500 font-semibold">Dipendente: <span id="print-presenze-dipendente"></span></p>
+      </div>
+
       <!-- Selezione Azienda Cliccabile -->
       <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl space-y-2">
         <div class="flex items-center justify-between">
@@ -205,8 +216,7 @@
         </div>
         <div id="presenze-azienda-buttons" class="flex flex-wrap gap-1.5 pt-1"></div>
       </div>
-
-      <!-- Barra Dipendenti dell'Azienda Selezionata -->
+      <!-- Barra Dipendenti dell'Azienda Selezionata e Pulsante Stampa -->
       <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-2">
         <div class="flex items-center space-x-2 min-w-0 flex-1">
           <i class="fa-solid fa-users text-indigo-400 text-sm flex-shrink-0"></i>
@@ -215,11 +225,16 @@
             <option value="">Seleziona un dipendente...</option>
           </select>
         </div>
-        <button id="btn-delete-dipendente" onclick="deleteCurrentDipendente()" class="hidden text-xs text-red-400 hover:text-red-300 p-1.5 bg-red-500/10 rounded-lg border border-red-500/20" title="Elimina Dipendente">
-          <i class="fa-solid fa-user-minus"></i>
-        </button>
+        <div class="flex items-center space-x-1.5 flex-shrink-0">
+          <button id="btn-delete-dipendente" onclick="deleteCurrentDipendente()" class="hidden text-xs text-red-400 hover:text-red-300 p-1.5 bg-red-500/10 rounded-lg border border-red-500/20" title="Elimina Dipendente">
+            <i class="fa-solid fa-user-minus"></i>
+          </button>
+          <button onclick="stampaRiepilogoPresenze()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 flex items-center space-x-1">
+            <i class="fa-solid fa-print"></i>
+            <span>Stampa Riepilogo</span>
+          </button>
+        </div>
       </div>
-
       <!-- Calendario Dedicato e Riepilogo -->
       <div id="presenze-calendar-section" class="space-y-4">
         <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-2xl space-y-3">
@@ -229,7 +244,6 @@
             <h3 id="cal-month-year-title" class="font-bold text-sm text-slate-100 tracking-wide"></h3>
             <button onclick="changeCalMonth(1)" class="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs"><i class="fa-solid fa-chevron-right"></i></button>
           </div>
-
           <!-- Legenda rapide -->
           <div class="flex items-center justify-center space-x-3 text-[10px] text-slate-400 border-b border-slate-800/80 pb-2">
             <span class="flex items-center space-x-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>Presente</span></span>
@@ -237,16 +251,13 @@
             <span class="flex items-center space-x-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Ferie / Perm.</span></span>
             <span class="flex items-center space-x-1"><span class="w-2 h-2 rounded-full bg-cyan-400"></span><span>Acconto</span></span>
           </div>
-
           <!-- Griglia Giorni della Settimana -->
           <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
             <div>Lun</div><div>Mar</div><div>Mer</div><div>Gio</div><div>Ven</div><div>Sab</div><div>Dom</div>
           </div>
-
           <!-- Griglia Giorni del Mese -->
           <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
         </div>
-
         <!-- Card Totali Mese Dipendente -->
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
           <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center sm:text-left">
@@ -265,7 +276,6 @@
       </div>
     </div>
   </main>
-
   <!-- MODALE PERSONALIZZAZIONE ATTIVITÀ -->
   <div id="activities-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden no-print">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-4 sm:p-5 space-y-4 max-h-[90vh] overflow-y-auto">
@@ -288,7 +298,6 @@
       </form>
     </div>
   </div>
-
   <!-- MODALE INSERIMENTO MOVIMENTO / DOCUMENTO -->
   <div id="item-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden no-print">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-t-2xl sm:rounded-2xl p-4 sm:p-5 space-y-3.5 max-h-[90vh] overflow-y-auto">
@@ -362,7 +371,6 @@
       </form>
     </div>
   </div>
-
   <!-- MODALE AGGIUNGI DIPENDENTE -->
   <div id="dipendente-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden no-print">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-4 space-y-3.5">
@@ -390,7 +398,6 @@
       </form>
     </div>
   </div>
-
   <!-- MODALE REGISTRA PRESENZA & ACCONTO GIORNO -->
   <div id="day-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden no-print">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-t-2xl sm:rounded-2xl p-4 space-y-3.5 max-h-[90vh] overflow-y-auto">
@@ -401,7 +408,6 @@
         </div>
         <button onclick="closeDayModal()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
-
       <!-- Sezione Presenza -->
       <div class="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
         <h4 class="text-xs font-bold text-emerald-400 flex items-center"><i class="fa-solid fa-clock mr-1.5"></i>Stato Presenza & Ore</h4>
@@ -426,7 +432,6 @@
         </div>
         <button onclick="saveDayPresenza()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-xs font-medium shadow-md shadow-emerald-600/20">Salva Presenza</button>
       </div>
-
       <!-- Sezione Acconto -->
       <div class="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
         <h4 class="text-xs font-bold text-cyan-400 flex items-center"><i class="fa-solid fa-hand-holding-dollar mr-1.5"></i>Registra Acconto Dipendente</h4>
@@ -442,12 +447,10 @@
         </div>
         <button onclick="saveDayAcconto()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white py-2 rounded-lg text-xs font-medium shadow-md shadow-cyan-600/20">Aggiungi Acconto</button>
       </div>
-
       <!-- Registrazioni Esistenti del giorno -->
       <div id="day-modal-records" class="space-y-2 pt-1"></div>
     </div>
   </div>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDDff4Lkf6usNIgFlUcETsS4Fwnm200C7g",
@@ -461,12 +464,10 @@
     let dipendentiList = [];
     let presenzeList = [];
     let accontiList = [];
-
     let activePresenzeActivity = '';
     let activeDipendenteId = '';
     let currentCalDate = new Date();
     let selectedCalDayStr = '';
-
     let activityNames = ["Casa / Famiglia", "Attività 1", "Attività 2", "Attività 3", "Attività 4", "Attività 5"];
     const ACTIVITY_THEMES = [
       { bg: 'bg-indigo-950/30', border: 'border-indigo-500/40', text: 'text-indigo-400', badge: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40', headerBg: 'bg-indigo-900/30' },
@@ -501,7 +502,6 @@
     const LOCAL_DIP_KEY = 'life40_dipendenti_data';
     const LOCAL_PRES_KEY = 'life40_presenze_data';
     const LOCAL_ACC_KEY = 'life40_acconti_data';
-
     function loadCustomActivities() {
       const saved = localStorage.getItem(ACT_KEY);
       if (saved) {
@@ -634,28 +634,24 @@
           renderScadenze();
           updateDashboardMetrics();
         });
-
         db.collection('life40_dipendenti').onSnapshot(snapshot => {
           dipendentiList = [];
           snapshot.forEach(doc => { dipendentiList.push({ id: doc.id, ...doc.data() }); });
           localStorage.setItem(LOCAL_DIP_KEY, JSON.stringify(dipendentiList));
           renderPresenzeView();
         });
-
         db.collection('life40_presenze').onSnapshot(snapshot => {
           presenzeList = [];
           snapshot.forEach(doc => { presenzeList.push({ id: doc.id, ...doc.data() }); });
           localStorage.setItem(LOCAL_PRES_KEY, JSON.stringify(presenzeList));
           renderCalendar();
         });
-
         db.collection('life40_acconti').onSnapshot(snapshot => {
           accontiList = [];
           snapshot.forEach(doc => { accontiList.push({ id: doc.id, ...doc.data() }); });
           localStorage.setItem(LOCAL_ACC_KEY, JSON.stringify(accontiList));
           renderCalendar();
         });
-
         return true;
       } catch (e) {
         console.error("Errore Firebase:", e);
@@ -674,7 +670,6 @@
         presenzeList = localPres ? JSON.parse(localPres) : [];
         const localAcc = localStorage.getItem(LOCAL_ACC_KEY);
         accontiList = localAcc ? JSON.parse(localAcc) : [];
-
         renderItems();
         renderReport();
         renderScadenze();
@@ -858,18 +853,15 @@
       }
       document.getElementById('print-date').innerText = new Date().toLocaleDateString('it-IT');
     }
-
     /* ==========================================================================
        GESTIONE NUOVA SEZIONE: PRESENZE, ACCONTI & CALENDARIO DEDICATO AZIENDE
        ========================================================================== */
     function renderPresenzeView() {
       const btnContainer = document.getElementById('presenze-azienda-buttons');
       btnContainer.innerHTML = '';
-
       if (!activePresenzeActivity && activityNames.length > 0) {
         activePresenzeActivity = activityNames[0];
       }
-
       activityNames.forEach(act => {
         const theme = getActivityTheme(act);
         const isActive = act === activePresenzeActivity;
@@ -879,22 +871,18 @@
         btn.innerText = act;
         btnContainer.appendChild(btn);
       });
-
       populateDipendentiDropdown();
       renderCalendar();
     }
-
     function selectPresenzeAzienda(actName) {
       activePresenzeActivity = actName;
       activeDipendenteId = '';
       renderPresenzeView();
     }
-
     function populateDipendentiDropdown() {
       const select = document.getElementById('presenze-dipendente-select');
       const deleteBtn = document.getElementById('btn-delete-dipendente');
       select.innerHTML = '<option value="">-- Seleziona un dipendente --</option>';
-
       const filteredDip = dipendentiList.filter(d => d.activity === activePresenzeActivity);
       filteredDip.forEach(d => {
         const opt = document.createElement('option');
@@ -902,7 +890,6 @@
         opt.innerText = `${d.name} ${d.role ? `(${d.role})` : ''}`;
         select.appendChild(opt);
       });
-
       if (activeDipendenteId && filteredDip.some(d => d.id === activeDipendenteId)) {
         select.value = activeDipendenteId;
         deleteBtn.classList.remove('hidden');
@@ -915,7 +902,6 @@
         deleteBtn.classList.add('hidden');
       }
     }
-
     function onDipendenteChange() {
       const select = document.getElementById('presenze-dipendente-select');
       activeDipendenteId = select.value;
@@ -924,52 +910,61 @@
       else deleteBtn.classList.add('hidden');
       renderCalendar();
     }
-
     function changeCalMonth(delta) {
       currentCalDate.setMonth(currentCalDate.getMonth() + delta);
       renderCalendar();
     }
-
+    function updatePrintPresenzeHeader() {
+      const dipSelect = document.getElementById('presenze-dipendente-select');
+      const dipText = (dipSelect && dipSelect.selectedIndex >= 0 && dipSelect.options[dipSelect.selectedIndex] && dipSelect.value) 
+        ? dipSelect.options[dipSelect.selectedIndex].text 
+        : 'Tutti i Dipendenti / Nessuno';
+      const monthTitle = document.getElementById('cal-month-year-title') ? document.getElementById('cal-month-year-title').innerText : '';
+      
+      const elAzienda = document.getElementById('print-presenze-azienda');
+      const elMese = document.getElementById('print-presenze-mese');
+      const elDip = document.getElementById('print-presenze-dipendente');
+      
+      if (elAzienda) elAzienda.innerText = activePresenzeActivity || 'Nessuna';
+      if (elMese) elMese.innerText = monthTitle;
+      if (elDip) elDip.innerText = dipText;
+    }
+    function stampaRiepilogoPresenze() {
+      updatePrintPresenzeHeader();
+      window.print();
+    }
     function renderCalendar() {
       const monthTitle = document.getElementById('cal-month-year-title');
       const grid = document.getElementById('calendar-grid');
       if (!grid) return;
       grid.innerHTML = '';
-
       const year = currentCalDate.getFullYear();
       const month = currentCalDate.getMonth();
       const monthNames = ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"];
       monthTitle.innerText = `${monthNames[month]} ${year}`;
-
+      updatePrintPresenzeHeader();
       const firstDayIndex = new Date(year, month, 1).getDay(); // 0 = Dom
       const totalDays = new Date(year, month + 1, 0).getDate();
       const startOffset = (firstDayIndex + 6) % 7; // Lunedi = 0
-
       for (let i = 0; i < startOffset; i++) {
         const emptyCell = document.createElement('div');
         emptyCell.className = 'h-12 sm:h-14 bg-slate-950/40 rounded-lg border border-slate-800/30';
         grid.appendChild(emptyCell);
       }
-
       const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
-
       let totalOreMese = 0;
       let totalAccontiMese = 0;
       let totalGiorniPresenza = 0;
-
       for (let day = 1; day <= totalDays; day++) {
         const dateStr = `${monthPrefix}-${String(day).padStart(2, '0')}`;
         const dayCell = document.createElement('div');
         dayCell.className = 'h-12 sm:h-14 bg-slate-950 border border-slate-800 rounded-lg p-1 flex flex-col justify-between cursor-pointer hover:border-indigo-500 transition relative overflow-hidden';
         dayCell.onclick = () => openDayModal(dateStr);
-
         let cellContentHtml = `<span class="text-[10px] font-bold text-slate-400">${day}</span>`;
-
         if (activeDipendenteId) {
           const pres = presenzeList.find(p => p.dipendenteId === activeDipendenteId && p.date === dateStr);
           const accs = accontiList.filter(a => a.dipendenteId === activeDipendenteId && a.date === dateStr);
           const dayAccontoSum = accs.reduce((s, a) => s + parseFloat(a.amount || 0), 0);
-
           let presBadge = '';
           if (pres) {
             if (pres.status === 'presente') {
@@ -984,13 +979,11 @@
               presBadge = `<span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[8px] font-bold px-1 rounded truncate">Perm. ${pres.hours || 0}h</span>`;
             }
           }
-
           let accBadge = '';
           if (dayAccontoSum > 0) {
             accBadge = `<span class="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[8px] font-bold px-1 rounded truncate">€${dayAccontoSum.toFixed(0)}</span>`;
             totalAccontiMese += dayAccontoSum;
           }
-
           cellContentHtml = `
             <div class="flex justify-between items-center">
               <span class="text-[10px] font-bold text-slate-300">${day}</span>
@@ -1001,16 +994,13 @@
             </div>
           `;
         }
-
         dayCell.innerHTML = cellContentHtml;
         grid.appendChild(dayCell);
       }
-
       document.getElementById('stat-tot-ore').innerText = `${totalOreMese} h`;
       document.getElementById('stat-tot-acconti').innerText = `€ ${totalAccontiMese.toFixed(2)}`;
       document.getElementById('stat-tot-giorni').innerText = `${totalGiorniPresenza} gg`;
     }
-
     function openDayModal(dateStr) {
       if (!activeDipendenteId) {
         alert("Seleziona o aggiungi prima un dipendente per questa azienda!");
@@ -1020,7 +1010,6 @@
       const dip = dipendentiList.find(d => d.id === activeDipendenteId);
       document.getElementById('day-modal-title').innerText = `Gestione ${formatDate(dateStr)}`;
       document.getElementById('day-modal-subtitle').innerText = `Azienda: ${activePresenzeActivity} • Dipendente: ${dip ? dip.name : ''}`;
-
       const pres = presenzeList.find(p => p.dipendenteId === activeDipendenteId && p.date === dateStr);
       if (pres) {
         document.getElementById('day-presenza-status').value = pres.status || 'presente';
@@ -1031,25 +1020,19 @@
         document.getElementById('day-presenza-hours').value = '8';
         document.getElementById('day-presenza-notes').value = '';
       }
-
       document.getElementById('day-acconto-amount').value = '';
       document.getElementById('day-acconto-notes').value = '';
-
       renderDayRecords();
       document.getElementById('day-modal').classList.remove('hidden');
     }
-
     function closeDayModal() {
       document.getElementById('day-modal').classList.add('hidden');
     }
-
     function renderDayRecords() {
       const container = document.getElementById('day-modal-records');
       container.innerHTML = '';
-
       const accs = accontiList.filter(a => a.dipendenteId === activeDipendenteId && a.date === selectedCalDayStr);
       if (accs.length === 0) return;
-
       let html = `<div class="text-[10px] font-bold text-slate-400 border-t border-slate-800 pt-2">Acconti Registrati il giorno:</div>`;
       accs.forEach(a => {
         html += `
@@ -1064,16 +1047,13 @@
       });
       container.innerHTML = html;
     }
-
     async function saveDayPresenza() {
       if (!activeDipendenteId || !selectedCalDayStr) return;
       const status = document.getElementById('day-presenza-status').value;
       const hours = parseFloat(document.getElementById('day-presenza-hours').value || 0);
       const notes = document.getElementById('day-presenza-notes').value;
-
       const existing = presenzeList.find(p => p.dipendenteId === activeDipendenteId && p.date === selectedCalDayStr);
       const presId = existing ? existing.id : Date.now().toString();
-
       const presData = {
         dipendenteId: activeDipendenteId,
         activity: activePresenzeActivity,
@@ -1082,7 +1062,6 @@
         hours,
         notes
       };
-
       if (db) {
         await db.collection('life40_presenze').doc(presId).set(presData);
       } else {
@@ -1094,7 +1073,6 @@
       }
       closeDayModal();
     }
-
     async function saveDayAcconto() {
       if (!activeDipendenteId || !selectedCalDayStr) return;
       const amount = parseFloat(document.getElementById('day-acconto-amount').value || 0);
@@ -1103,7 +1081,6 @@
         alert("Inserisci un importo acconto valido!");
         return;
       }
-
       const accId = Date.now().toString();
       const accData = {
         dipendenteId: activeDipendenteId,
@@ -1112,7 +1089,6 @@
         amount,
         notes
       };
-
       if (db) {
         await db.collection('life40_acconti').doc(accId).set(accData);
       } else {
@@ -1125,7 +1101,6 @@
       renderDayRecords();
       renderCalendar();
     }
-
     async function deleteAcconto(accId) {
       if (confirm("Vuoi cancellare questo acconto?")) {
         if (db) {
@@ -1138,41 +1113,34 @@
         renderDayRecords();
       }
     }
-
     function openDipendenteModal() {
       document.getElementById('dip-name').value = '';
       document.getElementById('dip-role').value = '';
       document.getElementById('dip-activity').value = activePresenzeActivity || activityNames[0];
       document.getElementById('dipendente-modal').classList.remove('hidden');
     }
-
     function closeDipendenteModal() {
       document.getElementById('dipendente-modal').classList.add('hidden');
     }
-
     async function saveDipendente(e) {
       e.preventDefault();
       const name = document.getElementById('dip-name').value.trim();
       const role = document.getElementById('dip-role').value.trim();
       const activity = document.getElementById('dip-activity').value;
       if (!name) return;
-
       const dipId = Date.now().toString();
       const dipData = { name, role, activity };
-
       if (db) {
         await db.collection('life40_dipendenti').doc(dipId).set(dipData);
       } else {
         dipendentiList.push({ id: dipId, ...dipData });
         localStorage.setItem(LOCAL_DIP_KEY, JSON.stringify(dipendentiList));
       }
-
       activePresenzeActivity = activity;
       activeDipendenteId = dipId;
       closeDipendenteModal();
       renderPresenzeView();
     }
-
     async function deleteCurrentDipendente() {
       if (!activeDipendenteId) return;
       const dip = dipendentiList.find(d => d.id === activeDipendenteId);
@@ -1188,7 +1156,6 @@
         renderPresenzeView();
       }
     }
-
     function toggleReportMode() {
       const mode = document.getElementById('report-mode').value;
       if (mode === 'anno') {
