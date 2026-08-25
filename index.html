@@ -166,7 +166,7 @@
       <div class="bg-gradient-to-r from-indigo-900/40 to-slate-900 border border-indigo-500/30 p-3.5 rounded-2xl flex items-center justify-between">
         <div>
           <p class="text-xs text-indigo-300 font-semibold">RISULTATO SELEZIONATO</p>
-          <p class="text-[10px] text-slate-400 print:text-gray-600">Somma netta entrate/uscite del periodo</p>
+          <p class="text-[10px] text-slate-400 print:text-gray-600">Somma netta entrate/uscite del periodo (incluse uscite dipendenti)</p>
         </div>
         <div class="text-right">
           <p id="report-total-net" class="text-base sm:text-lg font-bold text-emerald-400">€ 0.00</p>
@@ -217,7 +217,7 @@
           <i class="fa-solid fa-users text-indigo-400 text-sm flex-shrink-0"></i>
           <label class="text-xs text-slate-300 font-medium flex-shrink-0">Dipendente:</label>
           <select id="presenze-dipendente-select" onchange="onDipendenteChange()" class="bg-slate-950 border border-slate-800 text-slate-100 text-xs px-2.5 py-1.5 rounded-xl w-full truncate focus:outline-none focus:border-indigo-500">
-            <option value="">Seleziona un dipendente...</option>
+            <option value="ALL">-- Tutti i dipendenti --</option>
           </select>
         </div>
         <div class="flex items-center space-x-1 flex-shrink-0">
@@ -277,7 +277,6 @@
       </div>
     </div>
   </main>
-
   <!-- MODALE SELEZIONE / CAMBIO CODICE PROFILO -->
   <div id="profile-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden no-print">
     <div class="bg-slate-900 border border-indigo-500/40 w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-2xl">
@@ -303,7 +302,6 @@
       </form>
     </div>
   </div>
-
   <!-- MODALE PERSONALIZZAZIONE ATTIVITÀ -->
   <div id="activities-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden no-print">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-4 sm:p-5 space-y-4 max-h-[90vh] overflow-y-auto">
@@ -436,6 +434,11 @@
         </div>
         <button onclick="closeDayModal()" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
+      <!-- Selezione Dipendente per la registrazione se "ALL" è attivo -->
+      <div id="day-modal-dip-selector-container" class="hidden bg-indigo-950/40 p-2.5 rounded-xl border border-indigo-500/30 space-y-1">
+        <label class="block text-[10px] font-bold text-indigo-300 uppercase">Seleziona Dipendente per Registrazione</label>
+        <select id="day-modal-dip-select" onchange="onDayModalDipChange()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs"></select>
+      </div>
       <!-- Sezione Presenza -->
       <div class="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
         <h4 class="text-xs font-bold text-emerald-400 flex items-center"><i class="fa-solid fa-clock mr-1.5"></i>Stato Presenza & Ore</h4>
@@ -453,6 +456,10 @@
             <label class="block text-[10px] text-slate-400 mb-1">Ore Lavorate</label>
             <input type="number" step="0.5" id="day-presenza-hours" value="8" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200">
           </div>
+        </div>
+        <div>
+          <label class="block text-[10px] text-slate-400 mb-1">Costo Presenza Giorno (€ opzionale)</label>
+          <input type="number" step="0.01" id="day-presenza-cost" placeholder="0.00" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs">
         </div>
         <div>
           <label class="block text-[10px] text-slate-400 mb-1">Note Presenza</label>
@@ -490,13 +497,13 @@
     let db = null;
     let currentProfileCode = localStorage.getItem('life40_profile_code') || '';
     let unsubscribes = [];
-
     let itemsList = [];
     let dipendentiList = [];
     let presenzeList = [];
     let accontiList = [];
     let activePresenzeActivity = '';
-    let activeDipendenteId = '';
+    let activeDipendenteId = 'ALL';
+    let modalSelectedDipId = '';
     let currentCalDate = new Date();
     let selectedCalDayStr = '';
     let activityNames = ["Casa / Famiglia", "Attività 1", "Attività 2", "Attività 3", "Attività 4", "Attività 5"];
@@ -561,7 +568,6 @@
       document.getElementById('profile-modal').classList.add('hidden');
       loadInitialData();
     }
-
     function loadCustomActivities() {
       const saved = localStorage.getItem(ACT_KEY + '_' + currentProfileCode);
       if (saved) {
@@ -671,24 +677,18 @@
         return { status: 'valid', days: diffDays, label: `🟢 VALIDO (${diffDays} gg)`, badgeClass: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' };
       }
     }
-
     function clearListeners() {
       unsubscribes.forEach(unsub => { if (typeof unsub === 'function') unsub(); });
       unsubscribes = [];
     }
-
     function initFirebase() {
       try {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         db = firebase.firestore();
-
         clearListeners();
         if (!currentProfileCode) return false;
-
         document.getElementById('cloud-status-text').innerText = `Cloud Sincronizzato con Firebase (Profilo: ${currentProfileCode})`;
-
         const profileRef = db.collection('life40_profiles').doc(currentProfileCode);
-
         const u1 = profileRef.collection('settings').doc('activities').onSnapshot(doc => {
           if (doc.exists && doc.data().names) {
             activityNames = doc.data().names;
@@ -712,7 +712,6 @@
           updateDashboardMetrics();
         });
         unsubscribes.push(u2);
-
         const u3 = profileRef.collection('dipendenti').onSnapshot(snapshot => {
           dipendentiList = [];
           snapshot.forEach(doc => { dipendentiList.push({ id: doc.id, ...doc.data() }); });
@@ -720,23 +719,22 @@
           renderPresenzeView();
         });
         unsubscribes.push(u3);
-
         const u4 = profileRef.collection('presenze').onSnapshot(snapshot => {
           presenzeList = [];
           snapshot.forEach(doc => { presenzeList.push({ id: doc.id, ...doc.data() }); });
           localStorage.setItem(LOCAL_PRES_KEY + '_' + currentProfileCode, JSON.stringify(presenzeList));
           renderCalendar();
+          renderReport();
         });
         unsubscribes.push(u4);
-
         const u5 = profileRef.collection('acconti').onSnapshot(snapshot => {
           accontiList = [];
           snapshot.forEach(doc => { accontiList.push({ id: doc.id, ...doc.data() }); });
           localStorage.setItem(LOCAL_ACC_KEY + '_' + currentProfileCode, JSON.stringify(accontiList));
           renderCalendar();
+          renderReport();
         });
         unsubscribes.push(u5);
-
         return true;
       } catch (e) {
         console.error("Errore Firebase:", e);
@@ -963,13 +961,13 @@
     }
     function selectPresenzeAzienda(actName) {
       activePresenzeActivity = actName;
-      activeDipendenteId = '';
+      activeDipendenteId = 'ALL';
       renderPresenzeView();
     }
     function populateDipendentiDropdown() {
       const select = document.getElementById('presenze-dipendente-select');
       const deleteBtn = document.getElementById('btn-delete-dipendente');
-      select.innerHTML = '<option value="">-- Seleziona un dipendente --</option>';
+      select.innerHTML = '<option value="ALL">-- Tutti i dipendenti --</option>';
       const filteredDip = dipendentiList.filter(d => d.activity === activePresenzeActivity);
       filteredDip.forEach(d => {
         const opt = document.createElement('option');
@@ -977,15 +975,15 @@
         opt.innerText = `${d.name} ${d.role ? `(${d.role})` : ''}`;
         select.appendChild(opt);
       });
-      if (activeDipendenteId && filteredDip.some(d => d.id === activeDipendenteId)) {
+      if (activeDipendenteId && (activeDipendenteId === 'ALL' || filteredDip.some(d => d.id === activeDipendenteId))) {
         select.value = activeDipendenteId;
-        deleteBtn.classList.remove('hidden');
-      } else if (filteredDip.length > 0) {
-        activeDipendenteId = filteredDip[0].id;
-        select.value = activeDipendenteId;
+      } else {
+        activeDipendenteId = 'ALL';
+        select.value = 'ALL';
+      }
+      if (activeDipendenteId && activeDipendenteId !== 'ALL') {
         deleteBtn.classList.remove('hidden');
       } else {
-        activeDipendenteId = '';
         deleteBtn.classList.add('hidden');
       }
     }
@@ -993,7 +991,7 @@
       const select = document.getElementById('presenze-dipendente-select');
       activeDipendenteId = select.value;
       const deleteBtn = document.getElementById('btn-delete-dipendente');
-      if (activeDipendenteId) deleteBtn.classList.remove('hidden');
+      if (activeDipendenteId && activeDipendenteId !== 'ALL') deleteBtn.classList.remove('hidden');
       else deleteBtn.classList.add('hidden');
       renderCalendar();
     }
@@ -1022,13 +1020,40 @@
       let totalOreMese = 0;
       let totalAccontiMese = 0;
       let totalGiorniPresenza = 0;
+
       for (let day = 1; day <= totalDays; day++) {
         const dateStr = `${monthPrefix}-${String(day).padStart(2, '0')}`;
         const dayCell = document.createElement('div');
         dayCell.className = 'h-12 sm:h-14 bg-slate-950 border border-slate-800 rounded-lg p-1 flex flex-col justify-between cursor-pointer hover:border-indigo-500 transition relative overflow-hidden';
         dayCell.onclick = () => openDayModal(dateStr);
         let cellContentHtml = `<span class="text-[10px] font-bold text-slate-400">${day}</span>`;
-        if (activeDipendenteId) {
+
+        if (activeDipendenteId === 'ALL') {
+          const companyDipIds = dipendentiList.filter(d => d.activity === activePresenzeActivity).map(d => d.id);
+          const presListDay = presenzeList.filter(p => companyDipIds.includes(p.dipendenteId) && p.date === dateStr);
+          const accsListDay = accontiList.filter(a => companyDipIds.includes(a.dipendenteId) && a.date === dateStr);
+
+          const dayOre = presListDay.filter(p => p.status === 'presente' || p.status === 'permesso').reduce((s, p) => s + parseFloat(p.hours || 0), 0);
+          const dayPresCount = presListDay.filter(p => p.status === 'presente').length;
+          const dayAccontoSum = accsListDay.reduce((s, a) => s + parseFloat(a.amount || 0), 0);
+
+          totalOreMese += dayOre;
+          totalAccontiMese += dayAccontoSum;
+          totalGiorniPresenza += dayPresCount;
+
+          let presBadge = dayOre > 0 ? `<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[8px] font-bold px-1 rounded truncate">${dayOre}h tot</span>` : '';
+          let accBadge = dayAccontoSum > 0 ? `<span class="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[8px] font-bold px-1 rounded truncate">€${dayAccontoSum.toFixed(0)}</span>` : '';
+
+          cellContentHtml = `
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-bold text-slate-300">${day}</span>
+            </div>
+            <div class="flex flex-col gap-0.5 mt-0.5">
+              ${presBadge}
+              ${accBadge}
+            </div>
+          `;
+        } else if (activeDipendenteId) {
           const pres = presenzeList.find(p => p.dipendenteId === activeDipendenteId && p.date === dateStr);
           const accs = accontiList.filter(a => a.dipendenteId === activeDipendenteId && a.date === dateStr);
           const dayAccontoSum = accs.reduce((s, a) => s + parseFloat(a.amount || 0), 0);
@@ -1078,7 +1103,7 @@
       const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
       const periodTitle = `${monthNames[month]} ${year}`;
       let dipsToPrint = [];
-      if (mode === 'singolo') {
+      if (mode === 'singolo' && activeDipendenteId !== 'ALL') {
         if (!activeDipendenteId) {
           alert("Seleziona prima un dipendente!");
           return;
@@ -1177,36 +1202,72 @@
       window.print();
     }
     function openDayModal(dateStr) {
-      if (!activeDipendenteId) {
-        alert("Seleziona o aggiungi prima un dipendente per questa azienda!");
+      const companyDips = dipendentiList.filter(d => d.activity === activePresenzeActivity);
+      if (companyDips.length === 0) {
+        alert("Aggiungi prima almeno un dipendente per questa azienda!");
         return;
       }
       selectedCalDayStr = dateStr;
-      const dip = dipendentiList.find(d => d.id === activeDipendenteId);
-      document.getElementById('day-modal-title').innerText = `Gestione ${formatDate(dateStr)}`;
+
+      const dipSelectorContainer = document.getElementById('day-modal-dip-selector-container');
+      const dipSelect = document.getElementById('day-modal-dip-select');
+
+      if (activeDipendenteId === 'ALL') {
+        dipSelectorContainer.classList.remove('hidden');
+        dipSelect.innerHTML = '';
+        companyDips.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.innerText = d.name;
+          dipSelect.appendChild(opt);
+        });
+        modalSelectedDipId = companyDips[0].id;
+        dipSelect.value = modalSelectedDipId;
+      } else {
+        dipSelectorContainer.classList.add('hidden');
+        modalSelectedDipId = activeDipendenteId;
+      }
+
+      loadDayModalData();
+      document.getElementById('day-modal').classList.remove('hidden');
+    }
+
+    function onDayModalDipChange() {
+      modalSelectedDipId = document.getElementById('day-modal-dip-select').value;
+      loadDayModalData();
+    }
+
+    function loadDayModalData() {
+      const targetDipId = modalSelectedDipId || activeDipendenteId;
+      const dip = dipendentiList.find(d => d.id === targetDipId);
+      document.getElementById('day-modal-title').innerText = `Gestione ${formatDate(selectedCalDayStr)}`;
       document.getElementById('day-modal-subtitle').innerText = `Azienda: ${activePresenzeActivity} • Dipendente: ${dip ? dip.name : ''}`;
-      const pres = presenzeList.find(p => p.dipendenteId === activeDipendenteId && p.date === dateStr);
+      
+      const pres = presenzeList.find(p => p.dipendenteId === targetDipId && p.date === selectedCalDayStr);
       if (pres) {
         document.getElementById('day-presenza-status').value = pres.status || 'presente';
         document.getElementById('day-presenza-hours').value = pres.hours || '8';
+        document.getElementById('day-presenza-cost').value = pres.cost || '';
         document.getElementById('day-presenza-notes').value = pres.notes || '';
       } else {
         document.getElementById('day-presenza-status').value = 'presente';
         document.getElementById('day-presenza-hours').value = '8';
+        document.getElementById('day-presenza-cost').value = '';
         document.getElementById('day-presenza-notes').value = '';
       }
       document.getElementById('day-acconto-amount').value = '';
       document.getElementById('day-acconto-notes').value = '';
       renderDayRecords();
-      document.getElementById('day-modal').classList.remove('hidden');
     }
+
     function closeDayModal() {
       document.getElementById('day-modal').classList.add('hidden');
     }
     function renderDayRecords() {
       const container = document.getElementById('day-modal-records');
       container.innerHTML = '';
-      const accs = accontiList.filter(a => a.dipendenteId === activeDipendenteId && a.date === selectedCalDayStr);
+      const targetDipId = modalSelectedDipId || activeDipendenteId;
+      const accs = accontiList.filter(a => a.dipendenteId === targetDipId && a.date === selectedCalDayStr);
       if (accs.length === 0) return;
       let html = `<div class="text-[10px] font-bold text-slate-400 border-t border-slate-800 pt-2">Acconti Registrati il giorno:</div>`;
       accs.forEach(a => {
@@ -1223,18 +1284,26 @@
       container.innerHTML = html;
     }
     async function saveDayPresenza() {
-      if (!activeDipendenteId || !selectedCalDayStr) return;
+      const targetDipId = modalSelectedDipId || activeDipendenteId;
+      if (!targetDipId || targetDipId === 'ALL' || !selectedCalDayStr) return;
+      
+      const dip = dipendentiList.find(d => d.id === targetDipId);
+      const companyActivity = dip ? dip.activity : activePresenzeActivity;
+
       const status = document.getElementById('day-presenza-status').value;
       const hours = parseFloat(document.getElementById('day-presenza-hours').value || 0);
+      const cost = parseFloat(document.getElementById('day-presenza-cost').value || 0);
       const notes = document.getElementById('day-presenza-notes').value;
-      const existing = presenzeList.find(p => p.dipendenteId === activeDipendenteId && p.date === selectedCalDayStr);
+      
+      const existing = presenzeList.find(p => p.dipendenteId === targetDipId && p.date === selectedCalDayStr);
       const presId = existing ? existing.id : Date.now().toString();
       const presData = {
-        dipendenteId: activeDipendenteId,
-        activity: activePresenzeActivity,
+        dipendenteId: targetDipId,
+        activity: companyActivity,
         date: selectedCalDayStr,
         status,
         hours,
+        cost,
         notes
       };
       if (db && currentProfileCode) {
@@ -1245,11 +1314,17 @@
         else presenzeList.push({ id: presId, ...presData });
         localStorage.setItem(LOCAL_PRES_KEY + '_' + currentProfileCode, JSON.stringify(presenzeList));
         renderCalendar();
+        renderReport();
       }
       closeDayModal();
     }
     async function saveDayAcconto() {
-      if (!activeDipendenteId || !selectedCalDayStr) return;
+      const targetDipId = modalSelectedDipId || activeDipendenteId;
+      if (!targetDipId || targetDipId === 'ALL' || !selectedCalDayStr) return;
+
+      const dip = dipendentiList.find(d => d.id === targetDipId);
+      const companyActivity = dip ? dip.activity : activePresenzeActivity;
+
       const amount = parseFloat(document.getElementById('day-acconto-amount').value || 0);
       const notes = document.getElementById('day-acconto-notes').value;
       if (!amount || amount <= 0) {
@@ -1258,8 +1333,8 @@
       }
       const accId = Date.now().toString();
       const accData = {
-        dipendenteId: activeDipendenteId,
-        activity: activePresenzeActivity,
+        dipendenteId: targetDipId,
+        activity: companyActivity,
         date: selectedCalDayStr,
         amount,
         notes
@@ -1270,11 +1345,13 @@
         accontiList.push({ id: accId, ...accData });
         localStorage.setItem(LOCAL_ACC_KEY + '_' + currentProfileCode, JSON.stringify(accontiList));
         renderCalendar();
+        renderReport();
       }
       document.getElementById('day-acconto-amount').value = '';
       document.getElementById('day-acconto-notes').value = '';
       renderDayRecords();
       renderCalendar();
+      renderReport();
     }
     async function deleteAcconto(accId) {
       if (confirm("Vuoi cancellare questo acconto?")) {
@@ -1284,6 +1361,7 @@
           accontiList = accontiList.filter(a => a.id !== accId);
           localStorage.setItem(LOCAL_ACC_KEY + '_' + currentProfileCode, JSON.stringify(accontiList));
           renderCalendar();
+          renderReport();
         }
         renderDayRecords();
       }
@@ -1317,7 +1395,7 @@
       renderPresenzeView();
     }
     async function deleteCurrentDipendente() {
-      if (!activeDipendenteId) return;
+      if (!activeDipendenteId || activeDipendenteId === 'ALL') return;
       const dip = dipendentiList.find(d => d.id === activeDipendenteId);
       if (!dip) return;
       if (confirm(`Sei sicuro di voler eliminare il dipendente "${dip.name}"?`)) {
@@ -1327,7 +1405,7 @@
           dipendentiList = dipendentiList.filter(d => d.id !== activeDipendenteId);
           localStorage.setItem(LOCAL_DIP_KEY + '_' + currentProfileCode, JSON.stringify(dipendentiList));
         }
-        activeDipendenteId = '';
+        activeDipendenteId = 'ALL';
         renderPresenzeView();
       }
     }
@@ -1364,12 +1442,23 @@
       document.getElementById('print-report-azienda').innerText = selectedActivity === 'tutti' ? 'Tutte le Aziende' : `Azienda: ${selectedActivity}`;
       let grandTotalNet = 0;
       const activitiesToDisplay = activityNames.filter(act => selectedActivity === 'tutti' || selectedActivity === act);
+      
       activitiesToDisplay.forEach(act => {
         const actItems = itemsList.filter(i => (i.activity === act || (!i.activity && act === activityNames[0])) && filterFn(i) && i.type !== 'documento');
+        
+        // Calcolo aggregato uscite dipendenti (acconti + presenze) per l'azienda corrente
+        const actAcconti = accontiList.filter(a => (a.activity === act || (!a.activity && act === activityNames[0])) && filterFn(a))
+                                      .reduce((sum, a) => sum + parseFloat(a.amount || 0), 0);
+        const actPresenzeCosto = presenzeList.filter(p => (p.activity === act || (!p.activity && p.activity === activityNames[0])) && filterFn(p))
+                                             .reduce((sum, p) => sum + parseFloat(p.cost || 0), 0);
+        const totalUsciteDipendenti = actAcconti + actPresenzeCosto;
+
         const entrate = actItems.filter(i => i.type === 'entrata').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
-        const uscite = actItems.filter(i => i.type === 'uscita' || i.type === 'abbonamento').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
-        const saldo = entrate - uscite;
+        const usciteGenerali = actItems.filter(i => i.type === 'uscita' || i.type === 'abbonamento').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
+        const usciteTotali = usciteGenerali + totalUsciteDipendenti;
+        const saldo = entrate - usciteTotali;
         grandTotalNet += saldo;
+
         const catTotals = {};
         actItems.forEach(i => {
           const cat = i.category || 'Altro';
@@ -1378,6 +1467,7 @@
           if (i.type === 'entrata') catTotals[cat].entrate += amt;
           else if (i.type === 'uscita' || i.type === 'abbonamento') catTotals[cat].uscite += amt;
         });
+
         let catRowsHtml = '';
         Object.keys(catTotals).forEach(cat => {
           const cEntrate = catTotals[cat].entrate;
@@ -1392,6 +1482,18 @@
             </div>
           `;
         });
+
+        if (totalUsciteDipendenti > 0) {
+          catRowsHtml += `
+            <div class="flex justify-between items-center text-[11px] py-1 border-b border-slate-800/40 print:border-gray-200 bg-cyan-950/20 px-1 rounded">
+              <span class="text-cyan-300 print:text-black font-semibold truncate">👥 Uscite Dipendenti (Acconti + Presenze)</span>
+              <div class="space-x-2 flex-shrink-0">
+                <span class="text-cyan-400 font-bold">-€ ${totalUsciteDipendenti.toFixed(2)}</span>
+              </div>
+            </div>
+          `;
+        }
+
         const theme = getActivityTheme(act);
         const card = document.createElement('div');
         card.className = `bg-slate-900 border ${theme.border} p-3.5 rounded-2xl space-y-3 print:bg-white print:border-gray-300`;
@@ -1400,10 +1502,11 @@
             <span class="px-2.5 py-1 rounded-lg text-xs font-bold border ${theme.badge}">${escapeHtml(act)}</span>
             <span class="text-[10px] px-2 py-0.5 rounded-full ${saldo >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'} font-semibold print:border print:border-gray-400">${saldo >= 0 ? 'Utile / Attivo' : 'Perdita / Disavanzo'}</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 text-center pt-1">
-            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Incassi</span><span class="text-xs font-semibold text-emerald-400">+ € ${entrate.toFixed(2)}</span></div>
-            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Spese</span><span class="text-xs font-semibold text-red-400">- € ${uscite.toFixed(2)}</span></div>
-            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Risultato</span><span class="text-xs font-bold ${saldo >= 0 ? 'text-indigo-400' : 'text-red-400'}">€ ${saldo.toFixed(2)}</span></div>
+          <div class="grid grid-cols-4 gap-1.5 text-center pt-1">
+            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Incassi</span><span class="text-[11px] sm:text-xs font-semibold text-emerald-400">+ € ${entrate.toFixed(2)}</span></div>
+            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Spese Gen.</span><span class="text-[11px] sm:text-xs font-semibold text-red-400">- € ${usciteGenerali.toFixed(2)}</span></div>
+            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Spese Dip.</span><span class="text-[11px] sm:text-xs font-semibold text-cyan-400">- € ${totalUsciteDipendenti.toFixed(2)}</span></div>
+            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Risultato</span><span class="text-[11px] sm:text-xs font-bold ${saldo >= 0 ? 'text-indigo-400' : 'text-red-400'}">€ ${saldo.toFixed(2)}</span></div>
           </div>
           ${catRowsHtml ? `<div class="pt-1">
             <p class="text-[10px] text-slate-400 print:text-gray-600 font-semibold mb-1">Dettaglio Voci per Categoria:</p>
@@ -1421,10 +1524,15 @@
       const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
       const currentMonthItems = itemsList.filter(i => i.date && i.date.substring(0, 7) === currentMonthStr && i.type !== 'documento');
       const entrate = currentMonthItems.filter(i => i.type === 'entrata').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
-      const uscite = currentMonthItems.filter(i => i.type === 'uscita' || i.type === 'abbonamento').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
-      const saldo = entrate - uscite;
+      const usciteGenerali = currentMonthItems.filter(i => i.type === 'uscita' || i.type === 'abbonamento').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
+      
+      const currentMonthAcconti = accontiList.filter(a => a.date && a.date.substring(0, 7) === currentMonthStr).reduce((sum, a) => sum + parseFloat(a.amount || 0), 0);
+      const currentMonthPresenzeCosto = presenzeList.filter(p => p.date && p.date.substring(0, 7) === currentMonthStr).reduce((sum, p) => sum + parseFloat(p.cost || 0), 0);
+      const usciteTotali = usciteGenerali + currentMonthAcconti + currentMonthPresenzeCosto;
+
+      const saldo = entrate - usciteTotali;
       document.getElementById('dash-entrate').innerText = `€ ${entrate.toFixed(2)}`;
-      document.getElementById('dash-uscite').innerText = `€ ${uscite.toFixed(2)}`;
+      document.getElementById('dash-uscite').innerText = `€ ${usciteTotali.toFixed(2)}`;
       document.getElementById('dash-saldo').innerText = `€ ${saldo.toFixed(2)}`;
     }
     function openModal(forceType = null) {
