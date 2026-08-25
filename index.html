@@ -486,6 +486,7 @@
       <div id="day-modal-records" class="space-y-2 pt-1"></div>
     </div>
   </div>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDDff4Lkf6usNIgFlUcETsS4Fwnm200C7g",
@@ -1582,26 +1583,27 @@
       if (view === 'scadenze') renderScadenze();
       if (view === 'presenze') renderPresenzeView();
     }
-    function formatDate(d) {
+    function formatDate(d) { 
       if (!d) return '';
       const parts = d.split('-');
-      if (parts.length !== 3) return d;
-      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      return d;
     }
-    function escapeHtml(text) {
-      if (!text) return '';
-      return text.toString()
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      const now = new Date();
-      document.getElementById('report-year').value = now.getFullYear();
-      document.getElementById('report-month').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const yearInput = document.getElementById('report-year');
+      if (yearInput && !yearInput.value) {
+        yearInput.value = new Date().getFullYear();
+      }
       loadInitialData();
     });
   </script>
