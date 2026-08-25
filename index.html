@@ -543,16 +543,6 @@
     const LOCAL_PRES_KEY = 'life40_presenze_data';
     const LOCAL_ACC_KEY = 'life40_acconti_data';
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-
     function openProfileModal() {
       document.getElementById('profile-input-code').value = currentProfileCode || '';
       const closeBtn = document.getElementById('btn-close-profile-modal');
@@ -1030,24 +1020,30 @@
       let totalOreMese = 0;
       let totalAccontiMese = 0;
       let totalGiorniPresenza = 0;
+
       for (let day = 1; day <= totalDays; day++) {
         const dateStr = `${monthPrefix}-${String(day).padStart(2, '0')}`;
         const dayCell = document.createElement('div');
         dayCell.className = 'h-12 sm:h-14 bg-slate-950 border border-slate-800 rounded-lg p-1 flex flex-col justify-between cursor-pointer hover:border-indigo-500 transition relative overflow-hidden';
         dayCell.onclick = () => openDayModal(dateStr);
         let cellContentHtml = `<span class="text-[10px] font-bold text-slate-400">${day}</span>`;
+
         if (activeDipendenteId === 'ALL') {
           const companyDipIds = dipendentiList.filter(d => d.activity === activePresenzeActivity).map(d => d.id);
           const presListDay = presenzeList.filter(p => companyDipIds.includes(p.dipendenteId) && p.date === dateStr);
           const accsListDay = accontiList.filter(a => companyDipIds.includes(a.dipendenteId) && a.date === dateStr);
+
           const dayOre = presListDay.filter(p => p.status === 'presente' || p.status === 'permesso').reduce((s, p) => s + parseFloat(p.hours || 0), 0);
           const dayPresCount = presListDay.filter(p => p.status === 'presente').length;
           const dayAccontoSum = accsListDay.reduce((s, a) => s + parseFloat(a.amount || 0), 0);
+
           totalOreMese += dayOre;
           totalAccontiMese += dayAccontoSum;
           totalGiorniPresenza += dayPresCount;
+
           let presBadge = dayOre > 0 ? `<span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[8px] font-bold px-1 rounded truncate">${dayOre}h tot</span>` : '';
           let accBadge = dayAccontoSum > 0 ? `<span class="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[8px] font-bold px-1 rounded truncate">€${dayAccontoSum.toFixed(0)}</span>` : '';
+
           cellContentHtml = `
             <div class="flex justify-between items-center">
               <span class="text-[10px] font-bold text-slate-300">${day}</span>
@@ -1212,8 +1208,10 @@
         return;
       }
       selectedCalDayStr = dateStr;
+
       const dipSelectorContainer = document.getElementById('day-modal-dip-selector-container');
       const dipSelect = document.getElementById('day-modal-dip-select');
+
       if (activeDipendenteId === 'ALL') {
         dipSelectorContainer.classList.remove('hidden');
         dipSelect.innerHTML = '';
@@ -1229,13 +1227,16 @@
         dipSelectorContainer.classList.add('hidden');
         modalSelectedDipId = activeDipendenteId;
       }
+
       loadDayModalData();
       document.getElementById('day-modal').classList.remove('hidden');
     }
+
     function onDayModalDipChange() {
       modalSelectedDipId = document.getElementById('day-modal-dip-select').value;
       loadDayModalData();
     }
+
     function loadDayModalData() {
       const targetDipId = modalSelectedDipId || activeDipendenteId;
       const dip = dipendentiList.find(d => d.id === targetDipId);
@@ -1258,6 +1259,7 @@
       document.getElementById('day-acconto-notes').value = '';
       renderDayRecords();
     }
+
     function closeDayModal() {
       document.getElementById('day-modal').classList.add('hidden');
     }
@@ -1287,6 +1289,7 @@
       
       const dip = dipendentiList.find(d => d.id === targetDipId);
       const companyActivity = dip ? dip.activity : activePresenzeActivity;
+
       const status = document.getElementById('day-presenza-status').value;
       const hours = parseFloat(document.getElementById('day-presenza-hours').value || 0);
       const cost = parseFloat(document.getElementById('day-presenza-cost').value || 0);
@@ -1318,8 +1321,10 @@
     async function saveDayAcconto() {
       const targetDipId = modalSelectedDipId || activeDipendenteId;
       if (!targetDipId || targetDipId === 'ALL' || !selectedCalDayStr) return;
+
       const dip = dipendentiList.find(d => d.id === targetDipId);
       const companyActivity = dip ? dip.activity : activePresenzeActivity;
+
       const amount = parseFloat(document.getElementById('day-acconto-amount').value || 0);
       const notes = document.getElementById('day-acconto-notes').value;
       if (!amount || amount <= 0) {
@@ -1441,16 +1446,19 @@
       activitiesToDisplay.forEach(act => {
         const actItems = itemsList.filter(i => (i.activity === act || (!i.activity && act === activityNames[0])) && filterFn(i) && i.type !== 'documento');
         
+        // Calcolo aggregato uscite dipendenti (acconti + presenze) per l'azienda corrente
         const actAcconti = accontiList.filter(a => (a.activity === act || (!a.activity && act === activityNames[0])) && filterFn(a))
                                       .reduce((sum, a) => sum + parseFloat(a.amount || 0), 0);
         const actPresenzeCosto = presenzeList.filter(p => (p.activity === act || (!p.activity && p.activity === activityNames[0])) && filterFn(p))
                                              .reduce((sum, p) => sum + parseFloat(p.cost || 0), 0);
         const totalUsciteDipendenti = actAcconti + actPresenzeCosto;
+
         const entrate = actItems.filter(i => i.type === 'entrata').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
         const usciteGenerali = actItems.filter(i => i.type === 'uscita' || i.type === 'abbonamento').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
         const usciteTotali = usciteGenerali + totalUsciteDipendenti;
         const saldo = entrate - usciteTotali;
         grandTotalNet += saldo;
+
         const catTotals = {};
         actItems.forEach(i => {
           const cat = i.category || 'Altro';
@@ -1459,6 +1467,7 @@
           if (i.type === 'entrata') catTotals[cat].entrate += amt;
           else if (i.type === 'uscita' || i.type === 'abbonamento') catTotals[cat].uscite += amt;
         });
+
         let catRowsHtml = '';
         Object.keys(catTotals).forEach(cat => {
           const cEntrate = catTotals[cat].entrate;
@@ -1473,6 +1482,7 @@
             </div>
           `;
         });
+
         if (totalUsciteDipendenti > 0) {
           catRowsHtml += `
             <div class="flex justify-between items-center text-[11px] py-1 border-b border-slate-800/40 print:border-gray-200 bg-cyan-950/20 px-1 rounded">
@@ -1483,6 +1493,7 @@
             </div>
           `;
         }
+
         const theme = getActivityTheme(act);
         const card = document.createElement('div');
         card.className = `bg-slate-900 border ${theme.border} p-3.5 rounded-2xl space-y-3 print:bg-white print:border-gray-300`;
@@ -1518,6 +1529,7 @@
       const currentMonthAcconti = accontiList.filter(a => a.date && a.date.substring(0, 7) === currentMonthStr).reduce((sum, a) => sum + parseFloat(a.amount || 0), 0);
       const currentMonthPresenzeCosto = presenzeList.filter(p => p.date && p.date.substring(0, 7) === currentMonthStr).reduce((sum, p) => sum + parseFloat(p.cost || 0), 0);
       const usciteTotali = usciteGenerali + currentMonthAcconti + currentMonthPresenzeCosto;
+
       const saldo = entrate - usciteTotali;
       document.getElementById('dash-entrate').innerText = `€ ${entrate.toFixed(2)}`;
       document.getElementById('dash-uscite').innerText = `€ ${usciteTotali.toFixed(2)}`;
@@ -1592,20 +1604,20 @@
       if (view === 'scadenze') renderScadenze();
       if (view === 'presenze') renderPresenzeView();
     }
-    function formatDate(d) {
-      if (!d) return '';
-      const parts = d.split('-');
-      if (parts.length !== 3) return d;
-      const [y, m, day] = parts;
-      return `${day}/${m}/${y}`;
-    }
-
+    function formatDate(d) { if(!d) return ''; const [y, m, day] = d.split('-'); return `${day}/${m}/${y}`; }
+    function escapeHtml(str) { return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+    
     document.addEventListener('DOMContentLoaded', () => {
       const today = new Date();
       document.getElementById('report-year').value = today.getFullYear();
-      document.getElementById('report-month').value = today.toISOString().slice(0, 7);
-      document.getElementById('current-profile-display').innerText = currentProfileCode || '---';
-      loadInitialData();
+      document.getElementById('report-month').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+      
+      if (currentProfileCode) {
+        document.getElementById('current-profile-display').innerText = currentProfileCode;
+        loadInitialData();
+      } else {
+        openProfileModal();
+      }
     });
   </script>
 </body>
