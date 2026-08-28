@@ -52,6 +52,7 @@
     </div>
     <button onclick="switchTab('scadenze')" class="bg-amber-500 text-slate-950 px-2.5 py-1 rounded text-[10px] font-bold flex-shrink-0">Vedi Scadenze</button>
   </div>
+
   <!-- Header -->
   <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40 no-print">
     <div class="max-w-2xl mx-auto px-3 py-2.5 flex items-center justify-between gap-2">
@@ -82,6 +83,7 @@
       </div>
     </div>
   </header>
+
   <main class="max-w-2xl mx-auto px-3 sm:px-4 pt-4 space-y-4 print-area">
     <!-- Dashboard Quick Totals -->
     <div class="grid grid-cols-3 gap-2 no-print">
@@ -98,6 +100,7 @@
         <span id="dash-saldo" class="text-xs sm:text-base font-bold text-indigo-400 truncate block">€ 0.00</span>
       </div>
     </div>
+
     <!-- Navigation Main Tabs -->
     <div class="flex border-b border-slate-800 text-xs font-medium text-slate-400 no-print">
       <button onclick="switchTab('movimenti')" id="tab-movimenti" class="flex-1 pb-2.5 text-indigo-400 border-b-2 border-indigo-500 font-semibold transition text-center">Movimenti</button>
@@ -111,6 +114,7 @@
         <span class="truncate">Presenze & Acconti</span>
       </button>
     </div>
+
     <!-- VISTA 1: LISTA MOVIMENTI -->
     <div id="view-movimenti" class="space-y-3">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 no-print">
@@ -129,6 +133,7 @@
       </div>
       <div id="items-container" class="space-y-4"></div>
     </div>
+
     <!-- VISTA 2: REPORT DETTAGLIATO E FINE ANNO -->
     <div id="view-report" class="space-y-4 hidden">
       <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex flex-wrap items-center justify-between gap-2 no-print">
@@ -173,6 +178,7 @@
         </div>
       </div>
     </div>
+
     <!-- VISTA 3: SCADENZE & DOCUMENTI -->
     <div id="view-scadenze" class="space-y-4 hidden">
       <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-3 rounded-xl no-print gap-2">
@@ -198,6 +204,7 @@
       </div>
       <div id="scadenze-container" class="space-y-3"></div>
     </div>
+
     <!-- VISTA 4: PRESENZE, ACCONTI & CALENDARIO DEDICATO AZIENDE -->
     <div id="view-presenze" class="space-y-4 hidden">
       <!-- Selezione Azienda Cliccabile -->
@@ -277,6 +284,7 @@
       </div>
     </div>
   </main>
+
   <!-- MODALE SELEZIONE / CAMBIO CODICE PROFILO -->
   <div id="profile-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-3 hidden no-print">
     <div class="bg-slate-900 border border-indigo-500/40 w-full max-w-sm rounded-2xl p-5 space-y-4 shadow-2xl">
@@ -302,6 +310,7 @@
       </form>
     </div>
   </div>
+
   <!-- MODALE PERSONALIZZAZIONE ATTIVITÀ -->
   <div id="activities-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden no-print">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-4 sm:p-5 space-y-4 max-h-[90vh] overflow-y-auto">
@@ -324,6 +333,7 @@
       </form>
     </div>
   </div>
+
   <!-- MODALE INSERIMENTO MOVIMENTO / DOCUMENTO -->
   <div id="item-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden no-print">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-t-2xl sm:rounded-2xl p-4 sm:p-5 space-y-3.5 max-h-[90vh] overflow-y-auto">
@@ -397,6 +407,7 @@
       </form>
     </div>
   </div>
+
   <!-- MODALE AGGIUNGI DIPENDENTE -->
   <div id="dipendente-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 hidden no-print">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-4 space-y-3.5">
@@ -424,6 +435,7 @@
       </form>
     </div>
   </div>
+
   <!-- MODALE REGISTRA PRESENZA & ACCONTO GIORNO -->
   <div id="day-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden no-print">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-t-2xl sm:rounded-2xl p-4 space-y-3.5 max-h-[90vh] overflow-y-auto">
@@ -465,10 +477,7 @@
           <label class="block text-[10px] text-slate-400 mb-1">Note Presenza</label>
           <input type="text" id="day-presenza-notes" placeholder="es. Cantiere X, Straordinari..." class="w-full bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200 text-xs">
         </div>
-        <div class="flex space-x-2">
-          <button onclick="saveDayPresenza()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-xs font-medium shadow-md shadow-emerald-600/20">Salva Presenza</button>
-          <button onclick="deleteDayPresenza()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-2 rounded-lg text-xs font-medium transition" title="Cancella Presenza Giorno">Cancella Presenza</button>
-        </div>
+        <button onclick="saveDayPresenza()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-xs font-medium shadow-md shadow-emerald-600/20">Salva Presenza</button>
       </div>
       <!-- Sezione Acconto -->
       <div class="space-y-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
@@ -489,6 +498,7 @@
       <div id="day-modal-records" class="space-y-2 pt-1"></div>
     </div>
   </div>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDDff4Lkf6usNIgFlUcETsS4Fwnm200C7g",
@@ -545,7 +555,7 @@
       "Viaggi & Trasporti", "Svago & Intrattenimento", "Alcolici & Bar", "Spesa Alimentare",
       "Affitto & Mutuo", "Forniture & Materiali", "Consulenze & Servizi", "Manutenzioni & Riparazioni",
       "Carburante & Veicoli", "Assicurazioni", "Stipendi & Collaboratori", "Giochi & Lotterie",
-      "Sigarettes & Vizi", "Elettronica", "Vestiti & Moda", "Altro Uscita"
+      "Sigarettes & Vizi", "Elettronica", "Vestiti & Moda", "Estetista", "Parrucchiera", "Altro Uscita"
     ];
     const CATEGORIES_ENTRATE = [
       "Incasso Clienti / Vendite", "Stipendio / Compensi", "Affitti Attivi / Rendite",
@@ -561,6 +571,31 @@
     const LOCAL_DIP_KEY = 'life40_dipendenti_data';
     const LOCAL_PRES_KEY = 'life40_presenze_data';
     const LOCAL_ACC_KEY = 'life40_acconti_data';
+
+    function switchTab(tabId) {
+      const tabs = ['movimenti', 'report', 'scadenze', 'presenze'];
+      tabs.forEach(t => {
+        const view = document.getElementById(`view-${t}`);
+        const btn = document.getElementById(`tab-${t}`);
+        if (view) {
+          if (t === tabId) view.classList.remove('hidden');
+          else view.classList.add('hidden');
+        }
+        if (btn) {
+          if (t === tabId) {
+            btn.classList.add('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
+            btn.classList.remove('text-slate-400');
+          } else {
+            btn.classList.remove('text-indigo-400', 'border-b-2', 'border-indigo-500', 'font-semibold');
+            btn.classList.add('text-slate-400');
+          }
+        }
+      });
+      if (tabId === 'report') renderReport();
+      if (tabId === 'scadenze') renderScadenze();
+      if (tabId === 'presenze') renderPresenzeView();
+    }
+
     function openProfileModal() {
       document.getElementById('profile-input-code').value = currentProfileCode || '';
       const closeBtn = document.getElementById('btn-close-profile-modal');
@@ -784,6 +819,46 @@
         renderPresenzeView();
       }
     }
+
+    function openModal(type = 'uscita') {
+      document.getElementById('item-id').value = '';
+      document.getElementById('item-form').reset();
+      document.getElementById('item-attachment-base64').value = '';
+      document.getElementById('file-status').classList.add('hidden');
+      document.getElementById('item-type').value = type;
+      document.getElementById('item-date').value = new Date().toISOString().split('T')[0];
+      handleTypeChange();
+      document.getElementById('modal-title').innerText = type === 'documento' ? 'Nuovo Documento / Scadenza' : 'Nuovo Inserimento';
+      document.getElementById('item-modal').classList.remove('hidden');
+    }
+    function closeModal() {
+      document.getElementById('item-modal').classList.add('hidden');
+    }
+
+    function editItem(id) {
+      const item = itemsList.find(i => i.id === id);
+      if (!item) return;
+      document.getElementById('item-id').value = item.id;
+      document.getElementById('item-type').value = item.type || 'uscita';
+      handleTypeChange();
+      document.getElementById('item-activity').value = item.activity || activityNames[0];
+      document.getElementById('item-category').value = item.category || '';
+      document.getElementById('item-name').value = item.name || '';
+      document.getElementById('item-date').value = item.date || '';
+      document.getElementById('item-amount').value = item.amount || '';
+      document.getElementById('item-notes').value = item.notes || '';
+      document.getElementById('item-doc-num').value = item.docNum || '';
+      document.getElementById('item-alert-days').value = item.alertDays || 30;
+      document.getElementById('item-attachment-base64').value = item.attachment || '';
+      if (item.attachment) {
+        document.getElementById('file-status').classList.remove('hidden');
+      } else {
+        document.getElementById('file-status').classList.add('hidden');
+      }
+      document.getElementById('modal-title').innerText = 'Modifica Inserimento';
+      document.getElementById('item-modal').classList.remove('hidden');
+    }
+
     async function saveItem(e) {
       e.preventDefault();
       const id = document.getElementById('item-id').value || Date.now().toString();
@@ -1326,27 +1401,6 @@
       }
       closeDayModal();
     }
-    async function deleteDayPresenza() {
-      const targetDipId = modalSelectedDipId || activeDipendenteId;
-      if (!targetDipId || targetDipId === 'ALL' || !selectedCalDayStr) return;
-      const existing = presenzeList.find(p => p.dipendenteId === targetDipId && p.date === selectedCalDayStr);
-      if (!existing) {
-        alert("Nessuna presenza registrata da cancellare per questo giorno.");
-        return;
-      }
-      if (confirm("Vuoi cancellare la presenza di questo giorno?")) {
-        if (db && currentProfileCode) {
-          await db.collection('life40_profiles').doc(currentProfileCode).collection('presenze').doc(existing.id).delete();
-        } else {
-          presenzeList = presenzeList.filter(p => p.id !== existing.id);
-          localStorage.setItem(LOCAL_PRES_KEY + '_' + currentProfileCode, JSON.stringify(presenzeList));
-          renderCalendar();
-          renderReport();
-          updateDashboardMetrics();
-        }
-        closeDayModal();
-      }
-    }
     async function saveDayAcconto() {
       const targetDipId = modalSelectedDipId || activeDipendenteId;
       if (!targetDipId || targetDipId === 'ALL' || !selectedCalDayStr) return;
@@ -1439,6 +1493,37 @@
         renderPresenzeView();
       }
     }
+
+    function openActivitiesModal() {
+      for (let i = 0; i < 6; i++) {
+        const input = document.getElementById(`act-name-${i}`);
+        if (input) input.value = activityNames[i] || `Attività ${i+1}`;
+      }
+      document.getElementById('activities-modal').classList.remove('hidden');
+    }
+    function closeActivitiesModal() {
+      document.getElementById('activities-modal').classList.add('hidden');
+    }
+    async function saveCustomActivities(e) {
+      e.preventDefault();
+      const newNames = [];
+      for (let i = 0; i < 6; i++) {
+        const val = document.getElementById(`act-name-${i}`).value.trim();
+        newNames.push(val || `Attività ${i+1}`);
+      }
+      activityNames = newNames;
+      localStorage.setItem(ACT_KEY + '_' + currentProfileCode, JSON.stringify(activityNames));
+      if (db && currentProfileCode) {
+        await db.collection('life40_profiles').doc(currentProfileCode).collection('settings').doc('activities').set({ names: activityNames });
+      }
+      populateActivityDropdowns();
+      renderItems();
+      renderReport();
+      renderScadenze();
+      renderPresenzeView();
+      closeActivitiesModal();
+    }
+
     function toggleReportMode() {
       const mode = document.getElementById('report-mode').value;
       if (mode === 'anno') {
@@ -1450,6 +1535,7 @@
       }
       renderReport();
     }
+
     function renderReport() {
       const mode = document.getElementById('report-mode').value;
       const selectedActivity = document.getElementById('report-activity-filter').value;
@@ -1476,7 +1562,6 @@
       activitiesToDisplay.forEach(act => {
         const actItems = itemsList.filter(i => (i.activity === act || (!i.activity && act === activityNames[0])) && filterFn(i) && i.type !== 'documento');
         
-        // Calcolo aggregato uscite dipendenti (acconti + presenze) per l'azienda corrente
         const actAcconti = accontiList.filter(a => (a.activity === act || (!a.activity && act === activityNames[0])) && filterFn(a))
                                       .reduce((sum, a) => sum + parseFloat(a.amount || 0), 0);
         const actPresenzeCosto = presenzeList.filter(p => (p.activity === act || (!p.activity && p.activity === activityNames[0])) && filterFn(p))
@@ -1487,6 +1572,7 @@
         const usciteTotali = usciteGenerali + totalUsciteDipendenti;
         const saldo = entrate - usciteTotali;
         grandTotalNet += saldo;
+
         const catTotals = {};
         actItems.forEach(i => {
           const cat = i.category || 'Altro';
@@ -1495,155 +1581,101 @@
           if (i.type === 'entrata') catTotals[cat].entrate += amt;
           else if (i.type === 'uscita' || i.type === 'abbonamento') catTotals[cat].uscite += amt;
         });
+
+        const theme = getActivityTheme(act);
         let catRowsHtml = '';
         Object.keys(catTotals).forEach(cat => {
           const cEntrate = catTotals[cat].entrate;
           const cUscite = catTotals[cat].uscite;
           catRowsHtml += `
-            <div class="flex justify-between items-center text-[11px] py-1 border-b border-slate-800/40 print:border-gray-200">
-              <span class="text-slate-300 print:text-black font-medium truncate">${cat}</span>
-              <div class="space-x-2 flex-shrink-0">
-                ${cEntrate > 0 ? `<span class="text-emerald-400 font-bold">+€ ${cEntrate.toFixed(2)}</span>` : ''}
-                ${cUscite > 0 ? `<span class="text-red-400 font-bold">-€ ${cUscite.toFixed(2)}</span>` : ''}
+            <div class="flex justify-between items-center text-xs py-1 border-b border-slate-800/40">
+              <span class="text-slate-300">${escapeHtml(cat)}</span>
+              <div class="space-x-3">
+                ${cEntrate > 0 ? `<span class="text-emerald-400 font-semibold">+€ ${cEntrate.toFixed(2)}</span>` : ''}
+                ${cUscite > 0 ? `<span class="text-red-400 font-semibold">-€ ${cUscite.toFixed(2)}</span>` : ''}
               </div>
             </div>
           `;
         });
-        if (totalUsciteDipendenti > 0) {
-          catRowsHtml += `
-            <div class="flex justify-between items-center text-[11px] py-1 border-b border-slate-800/40 print:border-gray-200 bg-cyan-950/20 px-1 rounded">
-              <span class="text-cyan-300 print:text-black font-semibold truncate">👥 Uscite Dipendenti (Acconti + Presenze)</span>
-              <div class="space-x-2 flex-shrink-0">
-                <span class="text-cyan-400 font-bold">-€ ${totalUsciteDipendenti.toFixed(2)}</span>
-              </div>
-            </div>
-          `;
-        }
-        const theme = getActivityTheme(act);
+
         const card = document.createElement('div');
-        card.className = `bg-slate-900 border ${theme.border} p-3.5 rounded-2xl space-y-3 print:bg-white print:border-gray-300`;
+        card.className = `bg-slate-900 border ${theme.border} p-4 rounded-2xl space-y-3 print:bg-white print:border-gray-300`;
         card.innerHTML = `
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-800/80">
             <span class="px-2.5 py-1 rounded-lg text-xs font-bold border ${theme.badge}">${escapeHtml(act)}</span>
-            <span class="text-[10px] px-2 py-0.5 rounded-full ${saldo >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'} font-semibold print:border print:border-gray-400">${saldo >= 0 ? 'Utile / Attivo' : 'Perdita / Disavanzo'}</span>
+            <span class="text-xs font-bold ${saldo >= 0 ? 'text-emerald-400' : 'text-red-400'}">
+              Saldo: € ${saldo.toFixed(2)}
+            </span>
           </div>
-          <div class="grid grid-cols-4 gap-1.5 text-center pt-1">
-            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Incassi</span><span class="text-[11px] sm:text-xs font-semibold text-emerald-400">+ € ${entrate.toFixed(2)}</span></div>
-            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Spese Gen.</span><span class="text-[11px] sm:text-xs font-semibold text-red-400">- € ${usciteGenerali.toFixed(2)}</span></div>
-            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Spese Dip.</span><span class="text-[11px] sm:text-xs font-semibold text-cyan-400">- € ${totalUsciteDipendenti.toFixed(2)}</span></div>
-            <div class="bg-slate-950/50 p-2 rounded-xl print:bg-gray-50"><span class="text-[9px] text-slate-400 print:text-gray-600 block">Risultato</span><span class="text-[11px] sm:text-xs font-bold ${saldo >= 0 ? 'text-indigo-400' : 'text-red-400'}">€ ${saldo.toFixed(2)}</span></div>
+          <div class="grid grid-cols-3 gap-2 text-center py-1">
+            <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/50">
+              <span class="text-[10px] text-slate-400 block">Totale Entrate</span>
+              <span class="text-xs font-bold text-emerald-400">€ ${entrate.toFixed(2)}</span>
+            </div>
+            <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/50">
+              <span class="text-[10px] text-slate-400 block">Uscite Generali</span>
+              <span class="text-xs font-bold text-red-400">€ ${usciteGenerali.toFixed(2)}</span>
+            </div>
+            <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/50">
+              <span class="text-[10px] text-slate-400 block">Spese Dipendenti</span>
+              <span class="text-xs font-bold text-amber-400">€ ${totalUsciteDipendenti.toFixed(2)}</span>
+            </div>
           </div>
-          ${catRowsHtml ? `<div class="pt-1">
-            <p class="text-[10px] text-slate-400 print:text-gray-600 font-semibold mb-1">Dettaglio Voci per Categoria:</p>
-            <div class="bg-slate-950/40 p-2 rounded-xl border border-slate-800/40 print:bg-white print:border-gray-200">${catRowsHtml}</div>
-          </div>` : '<p class="text-[10px] text-slate-500 italic">Nessun movimento registrato nel periodo.</p>'}
+          ${Object.keys(catTotals).length > 0 ? `
+            <div class="pt-2">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Dettaglio Categorie:</span>
+              ${catRowsHtml}
+            </div>
+          ` : '<p class="text-xs text-slate-500 italic">Nessun movimento registrato nel periodo.</p>'}
         `;
         container.appendChild(card);
       });
-      const totalNetEl = document.getElementById('report-total-net');
-      totalNetEl.innerText = `€ ${grandTotalNet.toFixed(2)}`;
-      totalNetEl.className = `text-base sm:text-lg font-bold ${grandTotalNet >= 0 ? 'text-emerald-400' : 'text-red-400'}`;
+
+      const totalNetElem = document.getElementById('report-total-net');
+      if (totalNetElem) {
+        totalNetElem.innerText = `€ ${grandTotalNet.toFixed(2)}`;
+        totalNetElem.className = grandTotalNet >= 0 ? "text-base sm:text-lg font-bold text-emerald-400" : "text-base sm:text-lg font-bold text-red-400";
+      }
     }
+
     function updateDashboardMetrics() {
       const now = new Date();
       const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      const currentMonthItems = itemsList.filter(i => i.date && i.date.substring(0, 7) === currentMonthStr && i.type !== 'documento');
-      const entrate = currentMonthItems.filter(i => i.type === 'entrata').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
-      const usciteGenerali = currentMonthItems.filter(i => i.type === 'uscita' || i.type === 'abbonamento').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
       
-      const currentMonthAcconti = accontiList.filter(a => a.date && a.date.substring(0, 7) === currentMonthStr).reduce((sum, a) => sum + parseFloat(a.amount || 0), 0);
-      const currentMonthPresenzeCosto = presenzeList.filter(p => p.date && p.date.substring(0, 7) === currentMonthStr).reduce((sum, p) => sum + parseFloat(p.cost || 0), 0);
-      const usciteTotali = usciteGenerali + currentMonthAcconti + currentMonthPresenzeCosto;
+      const monthItems = itemsList.filter(i => i.date && i.date.startsWith(currentMonthStr) && i.type !== 'documento');
+      
+      const entrate = monthItems.filter(i => i.type === 'entrata').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
+      const usciteItems = monthItems.filter(i => i.type === 'uscita' || i.type === 'abbonamento').reduce((sum, i) => sum + parseFloat(i.amount || 0), 0);
+      
+      const monthAcconti = accontiList.filter(a => a.date && a.date.startsWith(currentMonthStr)).reduce((sum, a) => sum + parseFloat(a.amount || 0), 0);
+      const monthPresenzeCosto = presenzeList.filter(p => p.date && p.date.startsWith(currentMonthStr)).reduce((sum, p) => sum + parseFloat(p.cost || 0), 0);
+      
+      const usciteTotali = usciteItems + monthAcconti + monthPresenzeCosto;
       const saldo = entrate - usciteTotali;
-      document.getElementById('dash-entrate').innerText = `€ ${entrate.toFixed(2)}`;
-      document.getElementById('dash-uscite').innerText = `€ ${usciteTotali.toFixed(2)}`;
-      document.getElementById('dash-saldo').innerText = `€ ${saldo.toFixed(2)}`;
-    }
-    function openModal(forceType = null) {
-      document.getElementById('item-form').reset();
-      document.getElementById('item-id').value = '';
-      document.getElementById('item-attachment-base64').value = '';
-      document.getElementById('file-status').classList.add('hidden');
-      document.getElementById('item-date').value = new Date().toISOString().split('T')[0];
-      if (forceType) {
-        document.getElementById('item-type').value = forceType;
-      }
-      handleTypeChange();
-      document.getElementById('item-modal').classList.remove('hidden');
-    }
-    function openActivitiesModal() {
-      activityNames.forEach((name, i) => {
-        const input = document.getElementById(`act-name-${i}`);
-        if(input) input.value = name;
-      });
-      document.getElementById('activities-modal').classList.remove('hidden');
-    }
-    function closeActivitiesModal() { document.getElementById('activities-modal').classList.add('hidden'); }
-    function closeModal() { document.getElementById('item-modal').classList.add('hidden'); }
-    async function saveCustomActivities(e) {
-      e.preventDefault();
-      for (let i = 0; i < 6; i++) {
-        activityNames[i] = document.getElementById(`act-name-${i}`).value.trim() || `Attività ${i+1}`;
-      }
-      localStorage.setItem(ACT_KEY + '_' + currentProfileCode, JSON.stringify(activityNames));
-      if (db && currentProfileCode) await db.collection('life40_profiles').doc(currentProfileCode).collection('settings').doc('activities').set({ names: activityNames });
-      populateActivityDropdowns();
-      closeActivitiesModal();
-      renderItems();
-      renderReport();
-      renderScadenze();
-      renderPresenzeView();
-    }
-    function editItem(id) {
-      const item = itemsList.find(i => i.id === id);
-      if (!item) return;
-      document.getElementById('item-id').value = item.id;
-      document.getElementById('item-type').value = item.type || 'uscita';
-      handleTypeChange();
       
-      document.getElementById('item-activity').value = item.activity || activityNames[0];
-      document.getElementById('item-category').value = item.category || CATEGORIES_USCITE[0];
-      document.getElementById('item-name').value = item.name;
-      document.getElementById('item-date').value = item.date;
-      document.getElementById('item-amount').value = item.amount || '';
-      document.getElementById('item-notes').value = item.notes || '';
-      document.getElementById('item-doc-num').value = item.docNum || '';
-      document.getElementById('item-alert-days').value = item.alertDays || 30;
-      document.getElementById('item-attachment-base64').value = item.attachment || '';
-      if (item.attachment) {
-        document.getElementById('file-status').classList.remove('hidden');
-      } else {
-        document.getElementById('file-status').classList.add('hidden');
+      const dashEntrate = document.getElementById('dash-entrate');
+      const dashUscite = document.getElementById('dash-uscite');
+      const dashSaldo = document.getElementById('dash-saldo');
+      
+      if (dashEntrate) dashEntrate.innerText = `€ ${entrate.toFixed(2)}`;
+      if (dashUscite) dashUscite.innerText = `€ ${usciteTotali.toFixed(2)}`;
+      if (dashSaldo) {
+        dashSaldo.innerText = `€ ${saldo.toFixed(2)}`;
+        dashSaldo.className = saldo >= 0 ? 'text-xs sm:text-base font-bold text-emerald-400 truncate block' : 'text-xs sm:text-base font-bold text-red-400 truncate block';
       }
-      document.getElementById('item-modal').classList.remove('hidden');
-    }
-    function switchTab(view) {
-      document.getElementById('view-movimenti').classList.add('hidden');
-      document.getElementById('view-report').classList.add('hidden');
-      document.getElementById('view-scadenze').classList.add('hidden');
-      document.getElementById('view-presenze').classList.add('hidden');
-      
-      document.getElementById('tab-movimenti').className = 'flex-1 pb-2.5 transition text-center text-slate-400';
-      document.getElementById('tab-report').className = 'flex-1 pb-2.5 transition text-center text-slate-400';
-      document.getElementById('tab-scadenze').className = 'flex-1 pb-2.5 transition flex items-center justify-center space-x-1 text-center text-slate-400';
-      document.getElementById('tab-presenze').className = 'flex-1 pb-2.5 transition text-center flex items-center justify-center space-x-1 text-slate-400';
-      
-      document.getElementById(`view-${view}`).classList.remove('hidden');
-      const activeTab = document.getElementById(`tab-${view}`);
-      activeTab.className = 'flex-1 pb-2.5 text-indigo-400 border-b-2 border-indigo-500 font-semibold transition text-center flex items-center justify-center space-x-1';
-
-      if (view === 'movimenti') renderItems();
-      if (view === 'report') renderReport();
-      if (view === 'scadenze') renderScadenze();
-      if (view === 'presenze') renderPresenzeView();
     }
 
-    window.onload = function() {
-      const now = new Date();
-      document.getElementById('report-year').value = now.getFullYear();
-      document.getElementById('report-month').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    window.addEventListener('DOMContentLoaded', () => {
+      const currentYear = new Date().getFullYear();
+      const currentMonth = `${currentYear}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+      document.getElementById('report-year').value = currentYear;
+      document.getElementById('report-month').value = currentMonth;
+      
+      if (currentProfileCode) {
+        document.getElementById('current-profile-display').innerText = currentProfileCode;
+      }
       loadInitialData();
-    };
+    });
   </script>
 </body>
 </html>
